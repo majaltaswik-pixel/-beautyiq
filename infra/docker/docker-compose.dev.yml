@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      dockerfile: infra/docker/Dockerfile.dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    env_file:
+      - ../env/.env.development
+    environment:
+      DB_HOST: postgres
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - ../../:/app
+      - /app/node_modules
+    command: npx ts-node-dev --respawn --transpile-only --inspect=0.0.0.0 main.ts
+
+  postgres:
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: beautyiq_dev
+      POSTGRES_USER: beautyiq_dev
+      POSTGRES_PASSWORD: dev_password
+
+  redis:
+    ports:
+      - "6379:6379"
+
+  ngrok:
+    command: http api:3000

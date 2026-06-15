@@ -1,0 +1,10 @@
+services:
+  api:
+    env_file:
+      - ../env/.env.development
+
+  postgres:
+    environment:
+      POSTGRES_DB: beautyiq_dev
+      POSTGRES_USER: beautyiq_dev
+      POSTGRES_PASSWORD: dev_password

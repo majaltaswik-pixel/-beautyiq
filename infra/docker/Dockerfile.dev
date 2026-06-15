@@ -1,0 +1,12 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache wget
+
+COPY package*.json ./
+RUN npm ci
+
+EXPOSE 3000 9229
+
+CMD ["npx", "ts-node-dev", "--respawn", "--transpile-only", "main.ts"]
