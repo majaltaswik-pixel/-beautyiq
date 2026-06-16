@@ -60,8 +60,9 @@ export class BeautyIQServer {
       }
     });
 
-    // Plans API (public — pour la landing page)
+    // Plans & Checkout API (public — pour la landing page)
     this.app.get('/api/v1/billing/plans', handleGetPlans);
+    this.app.post('/api/v1/billing/create-checkout', handleCreateCheckout);
 
     // Servir l'app React embarquée (buildée dans frontend/dist)
     if (fs.existsSync(distPath)) {
@@ -88,7 +89,6 @@ export class BeautyIQServer {
     const api = express.Router();
 
     api.use(authMiddleware);
-    api.post('/billing/create-checkout', handleCreateCheckout);
     api.post('/billing/customer-portal', handleCreatePortal);
 
     api.post('/recommend', validateMiddleware(['skinType']), this.asyncHandler(handleRecommend));
