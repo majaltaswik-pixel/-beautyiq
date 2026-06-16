@@ -32,7 +32,7 @@ export class BillingService {
     const plan = PLANS.find((p) => p.id === params.planId);
     if (!plan) throw new Error(`Unknown plan: ${params.planId}`);
 
-    const unitAmount = params.billing === 'annual' ? plan.annualPrice : plan.monthlyPrice;
+    const unitAmount = params.billing === 'annual' ? plan.annualPrice * 12 : plan.monthlyPrice;
     const interval: 'month' | 'year' = params.billing === 'annual' ? 'year' : 'month';
 
     const lineItems: any[] = [
