@@ -38,7 +38,7 @@ export class BillingService {
     const lineItems: any[] = [
       {
         price_data: {
-          currency: 'eur',
+          currency: 'usd',
           product_data: { name: `${plan.name} — ${params.billing === 'annual' ? 'Annual' : 'Monthly'}` },
           unit_amount: unitAmount,
           recurring: { interval },
@@ -50,7 +50,7 @@ export class BillingService {
     if (plan.setupFee > 0) {
       lineItems.push({
         price_data: {
-          currency: 'eur',
+          currency: 'usd',
           product_data: { name: `${plan.name} — One-time Setup Fee` },
           unit_amount: plan.setupFee,
         },
