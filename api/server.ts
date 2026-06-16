@@ -47,8 +47,8 @@ export class BeautyIQServer {
   }
 
   private routes(): void {
-    // Landing page (public)
-    const frontendPath = path.join(__dirname, '..', 'frontend');
+    // Landing page (public) — __dirname = dist/api/, remonter à la racine
+    const frontendPath = path.join(__dirname, '..', '..', 'frontend');
     const distPath = path.join(frontendPath, 'dist');
     const landingPath = path.join(frontendPath, 'landing.html');
 
