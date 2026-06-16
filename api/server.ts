@@ -122,12 +122,25 @@ export class BeautyIQServer {
       }
     });
 
+    // Legacy API routes (the built frontend calls /api/... without /v1/)
+    this.app.post('/api/recommend', authMiddleware, async (req: Request, res: Response) => {
+      try {
+        const result = await handleRecommend({ ...req.body, ...req.query, ...req.params }, this.system.orchestrator);
+        res.status(200).json(result);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+    this.app.get('/api/shop', authMiddleware, async (req: Request, res: Response) => {
+      res.json({ shop: req.query.shop, name: req.query.shop, status: 'active' });
+    });
+
     const api = express.Router();
 
     api.use(authMiddleware);
     api.post('/billing/customer-portal', handleCreatePortal);
 
-    api.post('/recommend', validateMiddleware(['skinType']), this.asyncHandler(handleRecommend));
+    api.post('/recommend', this.asyncHandler(handleRecommend));
     api.post('/support', validateMiddleware(['query']), this.asyncHandler(handleSupport));
     api.post('/upsell', this.asyncHandler(handleUpsell));
     api.post('/recover-cart', this.asyncHandler(handleRecovery));
