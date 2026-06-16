@@ -4,7 +4,7 @@
   "description": "AI-native Revenue Operating System for Shopify skincare & beauty brands",
   "main": "dist/main.js",
   "scripts": {
-    "build": "node node_modules/typescript/bin/tsc",
+    "build": "npx --yes --package typescript@^5.3.3 -- tsc",
     "start": "node dist/main.js",
     "dev": "ts-node-dev --respawn --transpile-only main.ts",
     "typecheck": "tsc --noEmit",
