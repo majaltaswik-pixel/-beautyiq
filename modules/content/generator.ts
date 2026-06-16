@@ -1,5 +1,6 @@
 import { OrchestratorState } from '../../core/orchestrator/state';
 import { OrchestratorTools } from '../../core/orchestrator/tools';
+import { generateContent } from '../../api/services/llm';
 
 export type ContentType = 'product_description' | 'seo_article' | 'email_campaign' | 'ad_copy' | 'social_post';
 
@@ -20,6 +21,32 @@ export class ContentGenerator {
     const contentType = this.detectContentType(query, metadata.type);
     const tone = metadata.tone || 'premium';
     const productContext = await this.getProductContext(metadata, tools);
+
+    // Try LLM first
+    if (process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY) {
+      try {
+        const llmResult = await generateContent(query, tone || 'professional');
+        if (llmResult && llmResult.title && llmResult.body) {
+          const content: GeneratedContent = {
+            type: contentType,
+            title: llmResult.title,
+            body: llmResult.body,
+            tone,
+            wordCount: llmResult.body.split(/\s+/).length,
+            seoMetadata: llmResult.seoMetadata || undefined,
+          };
+          return {
+            ...state,
+            action: 'content_generated',
+            payload: { content, contentType, tone, wordCount: content.wordCount, source: 'ai' },
+            confidence: 0.9,
+            reasoning: [...state.reasoning, `Content engine: LLM generated ${contentType}`],
+          };
+        }
+      } catch {
+        // fallback to rule-based
+      }
+    }
 
     let content: GeneratedContent;
 

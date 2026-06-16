@@ -3,17 +3,20 @@ import { OrchestratorTools } from '../../core/orchestrator/tools';
 import { SkinProfile } from '../../core/orchestrator/state';
 import { GraphNode, NodeType, EdgeType } from '../../core/knowledge_graph/schema';
 import { findConflicts, findSynergies, isIngredientSuitable, SKIN_TYPE_ROUTINES, getIngredientInfo } from './rules';
+import { generateRecommendations } from '../../api/services/llm';
 
 export class RecommendationService {
   async recommend(state: OrchestratorState, tools: OrchestratorTools): Promise<OrchestratorState> {
     const profile: SkinProfile = state.context.skinProfile || state.context.metadata?.skinProfile || {};
     const query = state.context.query || '';
+    const shopDomain = state.context.shopDomain;
     const searchText = `${profile.skinType || ''} ${(profile.skinConcerns || []).join(' ')} ${query}`.trim();
 
-    const [ragResults, kgProducts, ingredientSynergies] = await Promise.all([
+    const [ragResults, kgProducts, ingredientSynergies, dbProducts] = await Promise.all([
       tools.queryRAG(searchText || 'skincare products', 10),
       tools.getGraphNodesByType('Product').then((all: GraphNode[]) => this.filterBySkinType(all, profile)),
       profile.allergies?.length ? tools.findIngredientSynergies(profile.allergies) : Promise.resolve([]),
+      shopDomain ? tools.productRepo.findByShopDomain(shopDomain.includes('myshopify.com') ? shopDomain : shopDomain + '.myshopify.com').catch(() => []) : Promise.resolve([]),
     ]);
 
     const vectorProducts = ragResults?.vectorResults || [];
@@ -28,13 +31,33 @@ export class RecommendationService {
           productType: n.properties?.productType || '',
         },
       })),
+      ...(dbProducts || []).map((p: any) => ({
+        id: p.id, source: 'db',
+        metadata: {
+          title: p.title, price: p.price, shopifyId: p.shopifyId,
+          ingredients: p.ingredients || [], tags: p.tags || [],
+          productType: p.productType || '', imageUrl: p.imageUrl,
+        },
+      })),
     ];
 
     const deduped = this.deduplicate(candidates);
     const scored = this.scoreWithRules(deduped, profile);
     const compatible = this.applyIngredientRules(scored, profile);
+    let topProducts = compatible.slice(0, 6);
 
-    const topProducts = compatible.slice(0, 6);
+    // LLM enhancement layer — re-rank top candidates with real AI
+    if (process.env.GROQ_API_KEY || process.env.OPENAI_API_KEY) {
+      try {
+        const llmRanked = await generateRecommendations(topProducts, profile);
+        if (llmRanked && llmRanked.length > 0) {
+          topProducts = llmRanked.slice(0, 6);
+        }
+      } catch {
+        // fallback to rule-based score
+      }
+    }
+
     const routine = await this.buildRoutineFromRules(profile, topProducts, tools);
     const alternatives = topProducts.length > 0
       ? await tools.findSimilar(topProducts[0].id || `product:${topProducts[0].metadata?.title}`, 3).catch(() => [])
@@ -55,6 +78,7 @@ export class RecommendationService {
         ingredientInfo: ingredientSynergies,
         explanation: this.buildExplanation(profile, topProducts, routine),
         skinProfile: profile,
+        source: topProducts.some(p => p.source === 'ai') ? 'ai' : 'rule',
       },
       confidence: this.calculateConfidence(topProducts, profile),
       reasoning: [...state.reasoning, `Recommendation: ${topProducts.length} products, ${routine.length} steps`],

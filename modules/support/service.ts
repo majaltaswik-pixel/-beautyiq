@@ -1,6 +1,7 @@
 import { OrchestratorState } from '../../core/orchestrator/state';
 import { OrchestratorTools } from '../../core/orchestrator/tools';
 import { DEFAULT_SUPPORT_KNOWLEDGE, SupportDocument } from './rag_support';
+import { generateSupportResponse } from '../../api/services/llm';
 
 export class SupportService {
   async handle(state: OrchestratorState, tools: OrchestratorTools): Promise<OrchestratorState> {
@@ -19,6 +20,18 @@ export class SupportService {
 
     const knowledgeMatch = this.searchKnowledgeBase(query, intent);
     response = this.buildResponse(intent, ragContext, query, orderInfo, knowledgeMatch);
+
+    // LLM enhancement — generate contextual support response
+    if (!response || intent === 'general') {
+      try {
+        const llmResponse = await generateSupportResponse(query, ragContext.context || '');
+        if (llmResponse && llmResponse !== '') {
+          response = llmResponse;
+        }
+      } catch {
+        // fallback
+      }
+    }
 
     if (!response && ragContext.context) {
       response = `Here is what I found:\n${ragContext.context.slice(0, 800)}`;

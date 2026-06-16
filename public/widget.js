@@ -3,7 +3,7 @@
   var apiUrl = document.currentScript?.getAttribute('data-api') || 'https://www.beautyiqapp.com';
 
   if (!shop) {
-    shop = window.location.hostname.replace('.myshopify.com', '');
+    shop = window.location.hostname;
   }
 
   var container = document.createElement('div');

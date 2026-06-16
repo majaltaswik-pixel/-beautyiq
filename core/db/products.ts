@@ -1,5 +1,6 @@
 export interface ProductRecord {
   id: string;
+  shopId?: string;
   shopifyId: number;
   title: string;
   description: string;
@@ -31,11 +32,11 @@ export class ProductRepository {
 
   async create(product: any): Promise<ProductRecord> {
     const query = `
-      INSERT INTO ${this.tableName} (shopify_id, title, description, tags, product_type, vendor, collections, price, compare_at_price, currency, image_url, images, ingredients, variants, options, status, published_at, created_at, updated_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+      INSERT INTO ${this.tableName} (shop_id, shopify_product_id, title, description, tags, product_type, vendor, collections, price, compare_at_price, currency, image_url, images, ingredients, variants, options, status, published_at, created_at, updated_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
       RETURNING *`;
     const values = [
-      product.shopifyId, product.title, product.description, JSON.stringify(product.tags),
+      product.shopId || null, product.shopifyId, product.title, product.description, JSON.stringify(product.tags),
       product.productType, product.vendor, JSON.stringify(product.collections),
       product.price, product.compareAtPrice, product.currency, product.imageUrl,
       JSON.stringify(product.images), JSON.stringify(product.ingredients),
@@ -62,6 +63,14 @@ export class ProductRepository {
     ];
     const { rows } = await this.db.query(query, values);
     return this.mapRecord(rows[0]);
+  }
+
+  async findByShopDomain(shopDomain: string): Promise<ProductRecord[]> {
+    const { rows } = await this.db.query(
+      `SELECT p.* FROM ${this.tableName} p JOIN shops s ON p.shop_id = s.id WHERE s.myshopify_domain = $1 ORDER BY p.created_at DESC`,
+      [shopDomain]
+    );
+    return rows.map((r: any) => this.mapRecord(r));
   }
 
   async findByShopifyId(shopifyId: number): Promise<ProductRecord | null> {
@@ -118,7 +127,8 @@ export class ProductRepository {
   private mapRecord(row: any): ProductRecord {
     return {
       id: row.id,
-      shopifyId: row.shopify_id,
+      shopId: row.shop_id,
+      shopifyId: row.shopify_product_id || row.shopify_id,
       title: row.title,
       description: row.description,
       tags: typeof row.tags === 'string' ? JSON.parse(row.tags) : row.tags,

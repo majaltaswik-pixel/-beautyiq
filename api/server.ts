@@ -83,6 +83,10 @@ export class BeautyIQServer {
       }
       const raw: any = await exchangeAccessToken(shop, code, this.shopifyConfig.apiKey, this.shopifyConfig.clientSecret);
       storeSession(shop, raw.access_token, raw.expires_in);
+      // Trigger product sync in background
+      this.system.syncShopProducts(shop).catch((e) =>
+        console.warn(`[Sync] Background sync for ${shop} failed:`, e.message)
+      );
       return { redirect: `/app?shop=${shop}&host=${host || ''}` };
     }));
 

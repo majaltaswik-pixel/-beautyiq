@@ -125,6 +125,14 @@ export class BeautyIQRevenueSystem {
     console.log(`[BeautyIQ] Knowledge Graph ready: ${stats.totalNodes} nodes, ${stats.totalEdges} edges`);
   }
 
+  async syncShopProducts(shopDomain: string): Promise<{ total: number; errors: number }> {
+    const client = new ShopifyClient(shopDomain);
+    const syncer = new ProductSyncService(client, this.productRepo);
+    const result = await syncer.syncAll();
+    console.log(`[BeautyIQ] Synced ${result.totalProcessed} products for ${shopDomain} (${result.totalCreated} new, ${result.totalUpdated} updated)`);
+    return { total: result.totalProcessed, errors: result.totalErrors };
+  }
+
   async handleRequest(endpoint: string, body: any): Promise<any> {
     switch (endpoint) {
       case '/recommend': return handleRecommend(body, this.orchestrator);
