@@ -4,7 +4,7 @@
   "description": "AI-native Revenue Operating System for Shopify skincare & beauty brands",
   "main": "dist/main.js",
   "scripts": {
-    "build": "npm install --include=dev && npx --yes --package typescript@^5.3.3 -- tsc && (cd frontend && npm install && npx --yes --package vite@^5.0.12 -- vite build)",
+    "build": "npm install --include=dev && npx --yes --package typescript@^5.3.3 -- tsc",
     "start": "node dist/main.js",
     "dev": "ts-node-dev --respawn --transpile-only main.ts",
     "typecheck": "tsc --noEmit",
