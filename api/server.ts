@@ -73,7 +73,7 @@ export class BeautyIQServer {
     }
 
     this.app.get('/auth/callback', this.asyncHandlerAuth(async (req: Request) => {
-      const { code, hmac, shop } = req.query as Record<string, string>;
+      const { code, hmac, shop, host } = req.query as Record<string, string>;
       if (!code || !hmac || !shop) {
         return { redirect: '/' };
       }
@@ -83,8 +83,34 @@ export class BeautyIQServer {
       }
       const raw: any = await exchangeAccessToken(shop, code, this.shopifyConfig.apiKey, this.shopifyConfig.clientSecret);
       storeSession(shop, raw.access_token, raw.expires_in);
-      return { redirect: `/api/v1/health?shop=${shop}` };
+      return { redirect: `/app?shop=${shop}&host=${host || ''}` };
     }));
+
+    // Install endpoint
+    this.app.get('/auth/install', (req: Request, res: Response) => {
+      const { shop } = req.query as Record<string, string>;
+      if (!shop) return res.status(400).send('Missing shop parameter');
+      const url = generateAuthUrl(shop, this.shopifyConfig.apiKey, this.shopifyConfig.scopes, this.shopifyConfig.redirectUri);
+      res.redirect(url);
+    });
+
+    // Widget embed script
+    const widgetPath = path.join(__dirname, '..', '..', 'public', 'widget.js');
+    if (fs.existsSync(widgetPath)) {
+      this.app.get('/widget.js', (_req: Request, res: Response) => {
+        res.type('application/javascript').sendFile(widgetPath);
+      });
+    }
+
+    // Public widget API (no auth — used from storefront)
+    this.app.post('/widget/recommend', async (req: Request, res: Response) => {
+      try {
+        const result = await handleRecommend(req.body, this.system.orchestrator);
+        res.json(result);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    });
 
     const api = express.Router();
 

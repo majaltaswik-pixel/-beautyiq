@@ -157,6 +157,16 @@ if (require.main === module) {
       try {
         await pool.query('SELECT 1');
         console.log('[BeautyIQ] PostgreSQL connected');
+        try {
+          const { readFileSync } = await import('fs');
+          const { join } = await import('path');
+          const migrationPath = join(__dirname, '..', 'infra', 'migrations', '001_initial_schema.sql');
+          const sql = readFileSync(migrationPath, 'utf8');
+          await pool.query(sql);
+          console.log('[BeautyIQ] Migrations applied');
+        } catch (mErr: any) {
+          console.log('[BeautyIQ] Migration skipped:', mErr.message);
+        }
       } catch (dbErr) {
         console.warn('[BeautyIQ] PostgreSQL not available — running in degraded mode');
       }
