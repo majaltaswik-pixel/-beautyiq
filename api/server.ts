@@ -35,7 +35,13 @@ export class BeautyIQServer {
   }
 
   private configure(): void {
-    this.app.use(helmet());
+    this.app.use(helmet({
+      crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: false,
+      crossOriginResourcePolicy: false,
+      contentSecurityPolicy: false,
+      frameguard: false,
+    }));
     this.app.use(cors({ origin: true, credentials: true }));
     this.app.use(morgan('dev'));
 

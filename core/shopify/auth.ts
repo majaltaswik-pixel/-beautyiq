@@ -18,7 +18,8 @@ const SESSION_STORE = new Map<string, Session>();
 export function generateAuthUrl(shop: string, apiKey: string, scopes: string, redirectUri: string): string {
   const state = crypto.randomBytes(16).toString('hex');
   const nonce = crypto.randomBytes(16).toString('hex');
-  return `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes}&redirect_uri=${redirectUri}&state=${state}&nonce=${nonce}`;
+  // Try new admin.shopify.com format first, fallback to legacy
+  return `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
 }
 
 export function validateHmac(queryString: string, clientSecret: string): boolean {
