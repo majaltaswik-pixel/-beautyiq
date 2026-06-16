@@ -10,9 +10,9 @@ export interface PlanConfig {
 }
 
 export const PLANS: PlanConfig[] = [
-  { id: 'starter', name: 'Starter', monthlyPrice: 9700, annualPrice: 7800, setupFee: 0 },
-  { id: 'growth', name: 'Growth', monthlyPrice: 19700, annualPrice: 15800, setupFee: 19700 },
-  { id: 'scale', name: 'Scale', monthlyPrice: 29700, annualPrice: 23800, setupFee: 29700 },
+  { id: 'starter', name: 'Starter', monthlyPrice: 4900, annualPrice: 3900, setupFee: 0 },
+  { id: 'growth', name: 'Growth', monthlyPrice: 9900, annualPrice: 7900, setupFee: 0 },
+  { id: 'scale', name: 'Scale', monthlyPrice: 19900, annualPrice: 15900, setupFee: 0 },
 ];
 
 export class BillingService {

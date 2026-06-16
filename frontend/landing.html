@@ -1252,7 +1252,7 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
 [data-marker-type="standard"][data-marker-value="decimal"] li:not([data-marker-type]) { counter-increment: list-counter 1; padding-left: calc(var(--marker-width) + var(--marker-spacing)); }
 [data-marker-type="standard"][data-marker-value="decimal"] li:not([data-marker-type])::before { content: counter(list-counter) "."; position: absolute; left: 0; top: 0; width: var(--marker-width); text-align: right; color: inherit; }
 [data-marker-type="emoji"] li:not([data-marker-type]), li[data-marker-type="emoji"] { padding-left: calc(var(--marker-width) + var(--marker-spacing)); }
-[data-marker-type="emoji"] li:not([data-marker-type])::before, li[data-marker-type="emoji"]::before { content: var(--marker, "�"); position: absolute; left: 0; top: 0; font-size: 1em; line-height: inherit; width: var(--marker-width); text-align: center; color: inherit; }
+[data-marker-type="emoji"] li:not([data-marker-type])::before, li[data-marker-type="emoji"]::before { content: var(--marker, "�"); position: absolute; left: 0; top: 0; font-size: 1em; line-height: inherit; width: var(--marker-width); text-align: center; color: inherit; }
 [data-marker-type="icon"] li:not([data-marker-type]), li[data-marker-type="icon"] { padding-left: calc(var(--marker-width) + var(--marker-spacing)); }
 [data-marker-type="icon"] li:not([data-marker-type])::before, li[data-marker-type="icon"]::before { content: ""; position: absolute; left: 0; width: 1.4em; height: 1.1em; mask-image: var(--marker); mask-size: contain; mask-repeat: no-repeat; -webkit-mask-position-x: 50%; -webkit-mask-position-y: 50%; background-color: currentcolor; }
 [data-marker-type], [data-marker-type] li, li[data-marker-type] { list-style-position: initial !important; list-style-image: initial !important; list-style-type: none !important; }
@@ -1731,10 +1731,10 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
     <div class="pricing-grid">
       <div class="pricing-card">
         <h3 class="pricing-plan-name">Starter</h3>
-        <p class="pricing-setup">$0 setup fee</p>
+        <p class="pricing-setup">No setup fee</p>
         <div class="pricing-amount-wrapper">
           <span class="pricing-currency">$</span>
-          <span class="pricing-amount" data-monthly="97" data-annual="78">97</span>
+          <span class="pricing-amount" data-monthly="49" data-annual="39">49</span>
           <span class="pricing-period">/month</span>
         </div>
         <p class="pricing-original"></p>
@@ -1749,10 +1749,10 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
       <div class="pricing-card pricing-card-popular">
         <div class="pricing-popular-badge"><span>? Most Popular</span></div>
         <h3 class="pricing-plan-name">Growth</h3>
-        <p class="pricing-setup">$197 one-time setup</p>
+        <p class="pricing-setup">No setup fee</p>
         <div class="pricing-amount-wrapper">
           <span class="pricing-currency">$</span>
-          <span class="pricing-amount" data-monthly="197" data-annual="158">197</span>
+          <span class="pricing-amount" data-monthly="99" data-annual="79">99</span>
           <span class="pricing-period">/month</span>
         </div>
         <p class="pricing-original"></p>
@@ -1768,10 +1768,10 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
       </div>
       <div class="pricing-card">
         <h3 class="pricing-plan-name">Scale</h3>
-        <p class="pricing-setup">$297 one-time setup</p>
+        <p class="pricing-setup">No setup fee</p>
         <div class="pricing-amount-wrapper">
           <span class="pricing-currency">$</span>
-          <span class="pricing-amount" data-monthly="297" data-annual="238">297</span>
+          <span class="pricing-amount" data-monthly="199" data-annual="159">199</span>
           <span class="pricing-period">/month</span>
         </div>
         <p class="pricing-original"></p>
@@ -1800,15 +1800,15 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
     <div class="faq-list">
       <div id="q1f01" class="faq-item active">
         <div onclick="toggleFaq('q1f01')" class="faq-question"><span class="faq-question-text">Does this actually work, or is it just another AI gimmick?</span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDlsNiA2bDYtNiIvPjwvc3ZnPg==" alt="" class="faq-chevron"></div>
-        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">Fair question. Every claim on this page is backed by production data from 127+ deployed stores. The system is not a generic chatbot — it is trained specifically on your product catalog, your ingredients, your brand voice, and your customer behavior patterns. Generic tools give generic results. A custom-trained AI revenue system does not. We also back this up with a 60-day ROI guarantee: if you don't recover your setup fee, we refund it in full.</p></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">Fair question. Every claim on this page is backed by production data from 127+ deployed stores. The system is not a generic chatbot — it is trained specifically on your product catalog, your ingredients, your brand voice, and your customer behavior patterns. Generic tools give generic results. A custom-trained AI revenue system does not. We also back this up with a 60-day ROI guarantee: if you don't see measurable improvement, we'll refund your last month.</p></div></div>
       </div>
       <div id="q1f02" class="faq-item">
         <div onclick="toggleFaq('q1f02')" class="faq-question"><span class="faq-question-text">What happens if I don't see results in the first 30 days?</span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDlsNiA2bDYtNiIvPjwvc3ZnPg==" alt="" class="faq-chevron"></div>
-        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">We offer a 60-day money-back guarantee on the setup fee — no questions asked. If the system does not generate measurable revenue improvements within 60 days of going live, you get your setup fee back in full. We are confident enough in the results that we take the risk, not you. The monthly subscription can also be cancelled at any time after the first 30 days.</p></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">We offer a 60-day money-back guarantee. If the system does not generate measurable revenue improvements within 60 days of going live, we'll refund your last month's subscription. We are confident enough in the results that we take the risk, not you. You can cancel anytime.</p></div></div>
       </div>
       <div id="q1f03" class="faq-item">
         <div onclick="toggleFaq('q1f03')" class="faq-question"><span class="faq-question-text">Is there a long-term contract or can I cancel anytime?</span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDlsNiA2bDYtNiIvPjwvc3ZnPg==" alt="" class="faq-chevron"></div>
-        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">No long-term contract. Ever. The monthly subscription runs month to month and can be cancelled with 30 days notice. The setup fee is a one-time investment in your store's AI infrastructure — it is not a recurring charge. You own the configuration we build for you. If you cancel, the base integration remains in your store.</p></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner"><p class="faq-answer-text">No long-term contract. Ever. The monthly subscription runs month to month and can be cancelled anytime. You own the configuration we build for you. If you cancel, the base integration remains in your store.</p></div></div>
       </div>
       <div id="q1f04" class="faq-item">
         <div onclick="toggleFaq('q1f04')" class="faq-question"><span class="faq-question-text">Who actually builds and deploys the system — is it automated?</span><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2E3OGJmYSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Im02IDlsNiA2bDYtNiIvPjwvc3ZnPg==" alt="" class="faq-chevron"></div>
@@ -1841,7 +1841,7 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
       <div class="guarantee-shield"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxZW0iIGhlaWdodD0iMWVtIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzEwYjk4MSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2Utd2lkdGg9IjIiIGQ9Ik0yMCAxM2MwIDUtMy41IDcuNS03LjY2IDguOTVhMSAxIDAgMCAxLS42Ny0uMDFDNy41IDIwLjUgNCAxOCA0IDEzVjZhMSAxIDAgMCAxIDEtMWMyIDAgNC41LTEuMiA2LjI0LTIuNzJhMS4xNyAxLjE3IDAgMCAxIDEuNTIgMEMxNC41MSAzLjgxIDE3IDUgMTkgNWExIDEgMCAwIDEgMSAxeiIvPjwvc3ZnPg==" alt="" width="40" height="40"></div>
       <div>
         <h3 class="guarantee-title">60-Day ROI Guarantee</h3>
-        <p class="guarantee-desc">If you don't recover your setup fee in the first 60 days, we refund it. No questions asked. We take the risk so you don't have to. Your monthly subscription can also be cancelled at any time after the first 30 days.</p>
+        <p class="guarantee-desc">If your store doesn't see measurable revenue improvement in the first 60 days, we'll refund your last month. No questions asked. We take the risk so you don't have to. You can cancel anytime.</p>
       </div>
     </div>
   </div>
@@ -1874,7 +1874,7 @@ li[data-marker-type="standard"][data-marker-value="circle"]::before { content: "
 <!-- FOOTER -->
 <footer class="footer">
   <div class="footer-inner">
-    <p class="footer-copy">� 2026 AI Skincare Revenue System. All rights reserved.</p>
+    <p class="footer-copy">© 2026 AI Skincare Revenue System. All rights reserved.</p>
     <ul class="footer-links">
       <li><a href="#" class="footer-link">Privacy Policy</a></li>
       <li><a href="#" class="footer-link">Terms of Service</a></li>
@@ -2731,7 +2731,7 @@ function getScrollDistance(el, baseKey, isPercent) {
       el.textContent = isAnnual ? el.getAttribute('data-annual') : el.getAttribute('data-monthly');
     });
     document.querySelectorAll('.pricing-original').forEach(function(el, idx) {
-      el.textContent = isAnnual ? '$' + [97, 197, 297][idx] + '/mo normally' : '';
+      el.textContent = isAnnual ? '$' + [49, 99, 199][idx] + '/mo normally' : '';
     });
   });
   var navbar = document.getElementById('n1bar');
