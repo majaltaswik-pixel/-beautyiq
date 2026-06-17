@@ -32,7 +32,7 @@
   var advisorHTML =
     '<div class="bq-panel">' +
     '<div class="bq-header">' +
-    '<div class="bq-header-l"><div class="bq-av">AI</div><div><div class="bq-hd">Beauty Advisor</div><div class="bq-sub">by BeautyIQ</div></div></div>' +
+    '<div class="bq-header-l"><div class="bq-av">✦</div><div><div class="bq-hd">Beauty Advisor</div><div class="bq-sub">by <span>beautyiq</span></div></div></div>' +
     '<button class="bq-skin-toggle" id="bq-sk">My&nbsp;Skin</button>' +
     '</div>' +
     '<div class="bq-prof" id="bq-prof">' +

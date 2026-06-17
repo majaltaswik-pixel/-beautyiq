@@ -85,7 +85,7 @@ export const WidgetInstall: React.FC<WidgetInstallProps> = ({ shop }) => {
       </div>
 
       <div style={{ background: 'linear-gradient(135deg, #7c3aed, #9333ea)', borderRadius: 12, padding: '28px 32px', marginBottom: 28, color: '#fff' }}>
-        <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>AI Beauty Advisor</div>
+        <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>Beauty Advisor</div>
         <div style={{ fontSize: 13, lineHeight: 1.6, opacity: 0.9, marginBottom: 20, maxWidth: 500 }}>A smart panel on your product pages that recommends products, builds routines, answers questions, and increases sales — all automatically.</div>
         <button onClick={handleInstall} disabled={installing} style={{ padding: '14px 32px', background: '#fff', color: '#7c3aed', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: installing ? 'default' : 'pointer', opacity: installing ? 0.7 : 1 }}>
           {installing ? 'Installing...' : 'Install Widget — One Click'}
