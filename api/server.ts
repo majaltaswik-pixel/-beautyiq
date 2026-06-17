@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from 'express';
+﻿import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -15,7 +15,7 @@ import { handleRecommendations, handleRoutineRecommendation } from './routes/rec
 import { handleRoutines, handleRoutineSteps } from './routes/routines';
 import { handleIngestEvent } from './routes/ingest_event';
 import { handleCreateCheckout, handleWebhook, handleCreatePortal, handleGetPlans } from './routes/billing';
-import { validateHmac, exchangeAccessToken, storeSession, generateAuthUrl, getSession } from '../core/shopify/auth';
+import { validateHmac, exchangeAccessToken, storeSession } from '../core/shopify/auth';
 import { ShopifyClient } from '../core/shopify/client';
 import path from 'path';
 import fs from 'fs';
@@ -26,7 +26,11 @@ export class BeautyIQServer {
   private port: number;
   private shopifyConfig: { apiKey: string; clientSecret: string; scopes: string; redirectUri: string };
 
-  constructor(system: BeautyIQRevenueSystem, port = 3000, shopifyConfig?: { apiKey: string; clientSecret: string; scopes: string; redirectUri: string }) {
+  constructor(
+    system: BeautyIQRevenueSystem,
+    port = 3000,
+    shopifyConfig?: { apiKey: string; clientSecret: string; scopes: string; redirectUri: string }
+  ) {
     this.system = system;
     this.port = port;
     this.shopifyConfig = shopifyConfig || { apiKey: '', clientSecret: '', scopes: '', redirectUri: '' };
@@ -36,17 +40,19 @@ export class BeautyIQServer {
   }
 
   private configure(): void {
-    this.app.use(helmet({
-      crossOriginEmbedderPolicy: false,
-      crossOriginOpenerPolicy: false,
-      crossOriginResourcePolicy: false,
-      contentSecurityPolicy: false,
-      frameguard: false,
-    }));
+    this.app.use(
+      helmet({
+        crossOriginEmbedderPolicy: false,
+        crossOriginOpenerPolicy: false,
+        crossOriginResourcePolicy: false,
+        contentSecurityPolicy: false,
+        frameguard: false,
+      })
+    );
     this.app.use(cors({ origin: true, credentials: true }));
     this.app.use(morgan('dev'));
 
-    // Stripe webhook requires raw body — must be before JSON parser
+    // Stripe webhook requires raw body â€” must be before JSON parser
     this.app.post('/api/v1/billing/webhook', express.raw({ type: 'application/json' }), handleWebhook);
 
     this.app.use(express.json({ limit: '10mb' }));
@@ -54,12 +60,12 @@ export class BeautyIQServer {
   }
 
   private routes(): void {
-    // Landing page (public) — __dirname = dist/api/, remonter à la racine
+    // Landing page (public) â€” __dirname = dist/api/, remonter Ã  la racine
     const frontendPath = path.join(__dirname, '..', '..', 'frontend');
     const distPath = path.join(frontendPath, 'dist');
     const landingPath = path.join(frontendPath, 'landing.html');
 
-    this.app.get('/', (req: Request, res: Response) => {
+    this.app.get('/', (_req: Request, res: Response) => {
       if (fs.existsSync(landingPath)) {
         res.sendFile(landingPath);
       } else {
@@ -67,11 +73,11 @@ export class BeautyIQServer {
       }
     });
 
-    // Plans & Checkout API (public — pour la landing page)
+    // Plans & Checkout API (public â€” pour la landing page)
     this.app.get('/api/v1/billing/plans', handleGetPlans);
     this.app.post('/api/v1/billing/create-checkout', handleCreateCheckout);
 
-    // Servir l'app React embarquée (buildée dans frontend/dist)
+    // Servir l'app React embarquÃ©e (buildÃ©e dans frontend/dist)
     if (fs.existsSync(distPath)) {
       this.app.use('/app', express.static(distPath));
       this.app.get('/app/*', (_req: Request, res: Response) => {
@@ -90,10 +96,12 @@ export class BeautyIQServer {
       }
       const raw: any = await exchangeAccessToken(shop, code, this.shopifyConfig.apiKey, this.shopifyConfig.clientSecret);
       storeSession(shop, raw.access_token, raw.expires_in);
+
       // Trigger product sync in background
       this.system.syncShopProducts(shop).catch((e) =>
         console.warn(`[Sync] Background sync for ${shop} failed:`, e.message)
       );
+
       return { redirect: `/app?shop=${shop}&host=${host || ''}` };
     }));
 
@@ -101,6 +109,9 @@ export class BeautyIQServer {
     this.app.get('/auth/install', (req: Request, res: Response) => {
       const { shop } = req.query as Record<string, string>;
       if (!shop) return res.status(400).send('Missing shop parameter');
+      // generateAuthUrl is re-exported by core/shopify/auth; kept inline here if needed.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { generateAuthUrl } = require('../core/shopify/auth');
       const url = generateAuthUrl(shop, this.shopifyConfig.apiKey, this.shopifyConfig.scopes, this.shopifyConfig.redirectUri);
       res.redirect(url);
     });
@@ -116,18 +127,48 @@ export class BeautyIQServer {
       });
     }
 
-    // Public widget API (no auth — used from storefront)
+    // Public widget API (no auth â€” used from storefront)
     this.app.post('/widget/recommend', async (req: Request, res: Response) => {
       try {
         const result = await handleRecommend(req.body, this.system.orchestrator);
-        res.json(result);
+
+        // Expected storefront shape:
+        // { payload: { explanation, recommendations: [{ product: { title, price, imageUrl }, match }], routine: [] } }
+        const payload = (result && (result.payload || result)) as any;
+
+        const recommendationsRaw = payload?.recommendations || payload?.products || [];
+        const normalized = {
+          payload: {
+            explanation: payload?.explanation ?? payload?.reasoning?.[1] ?? payload?.reasoning?.[0] ?? '',
+            recommendations: (Array.isArray(recommendationsRaw) ? recommendationsRaw : []).map((r: any) => {
+              const product = r?.product || r || {};
+              return {
+                product: {
+                  title: product?.title ?? product?.name ?? '',
+                  price: product?.price ?? product?.compare_at_price ?? product?.cost ?? null,
+                  imageUrl: product?.imageUrl ?? product?.image_url ?? product?.image ?? '',
+                },
+                match: r?.match ?? r?.score ?? r?.similarity ?? 0,
+              };
+            }),
+            routine: payload?.routine ?? [],
+          },
+        };
+
+        // If orchestrator already matches expected keys, keep original.
+        if (payload?.explanation !== undefined && payload?.recommendations !== undefined && payload?.routine !== undefined) {
+          res.json(result);
+        } else {
+          res.json(normalized);
+        }
       } catch (err: any) {
         res.status(500).json({ error: err.message });
       }
     });
 
     // Widget install/status (auth-protected)
-    const WIDGET_SRC = 'https://www.beautyiqapp.com/widget.js';
+    const WIDGET_SRC = 'https://www.beautyiqapp.com/widget.js?shop=';
+
     this.app.get('/api/v1/widget/status', authMiddleware, async (req: Request, res: Response) => {
       try {
         const shop = (req.query.shop || req.body.shop) as string;
@@ -140,17 +181,24 @@ export class BeautyIQServer {
         res.json({ installed: false, error: err.message });
       }
     });
+
     this.app.post('/api/v1/widget/install', authMiddleware, async (req: Request, res: Response) => {
       try {
         const shop = (req.query.shop || req.body.shop) as string;
         if (!shop) return res.status(400).json({ error: 'Missing shop' });
+
         const client = new ShopifyClient(shop);
         const tags = await client.getScriptTags();
         const existing = (tags.script_tags || []).find((t: any) => t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
+
         if (existing) {
           await client.deleteScriptTag(existing.id);
         }
-        const result = await client.createScriptTag(WIDGET_SRC + '?shop=' + encodeURIComponent(shop) + '&v=' + Date.now(), 'online_store');
+
+        // delete then recreate on each install
+        const src = WIDGET_SRC + encodeURIComponent(shop) + '&v=' + Date.now();
+        const result = await client.createScriptTag(src, 'online_store');
+
         res.json({ installed: true, id: result.script_tag?.id, message: 'Widget installed successfully' });
       } catch (err: any) {
         res.status(500).json({ error: err.message });
@@ -166,6 +214,7 @@ export class BeautyIQServer {
         res.status(500).json({ error: err.message });
       }
     });
+
     this.app.get('/api/shop', authMiddleware, async (req: Request, res: Response) => {
       res.json({ shop: req.query.shop, name: req.query.shop, status: 'active' });
     });
@@ -184,6 +233,7 @@ export class BeautyIQServer {
     api.post('/upsell', this.asyncHandler(handleUpsell));
     api.post('/recover-cart', this.asyncHandler(handleRecovery));
     api.post('/analytics', this.asyncHandler(handleAnalytics));
+
     api.post('/ingest-event', async (req, res, next) => {
       try {
         const result = await handleIngestEvent({ ...req.body }, this.system.eventIngestor);
@@ -248,3 +298,4 @@ export class BeautyIQServer {
     return this.app;
   }
 }
+
