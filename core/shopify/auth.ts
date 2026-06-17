@@ -96,7 +96,7 @@ export function getSession(shop: string): Session | undefined {
     return session;
   }
   // Fallback: use env var access token for any shop
-  const fallbackToken = process.env.SHOPIFY_ACCESS_TOKEN;
+  const fallbackToken = process.env.SHOPIFY_ACCESS_TOKEN?.trim();
   if (fallbackToken) {
     const fallback: Session = { shop, accessToken: fallbackToken, expiresAt: null };
     SESSION_STORE.set(shop, fallback);

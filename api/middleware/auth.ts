@@ -8,8 +8,8 @@ export interface AuthConfig {
 }
 
 const defaultConfig: AuthConfig = {
-  shopifyApiSecret: process.env.SHOPIFY_CLIENT_SECRET || process.env.SHOPIFY_API_SECRET || '',
-  apiKey: process.env.SHOPIFY_API_KEY || '',
+  shopifyApiSecret: (process.env.SHOPIFY_CLIENT_SECRET || process.env.SHOPIFY_API_SECRET || '').trim(),
+  apiKey: (process.env.SHOPIFY_API_KEY || '').trim(),
   bypassAuth: process.env.NODE_ENV === 'development' || process.env.BYPASS_AUTH === 'true' || false,
 };
 

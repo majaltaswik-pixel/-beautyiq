@@ -181,10 +181,10 @@ if (require.main === module) {
 
       const config: BeautyIQConfig = {
         shopify: {
-          apiKey: process.env.SHOPIFY_API_KEY || '',
-          clientSecret: process.env.SHOPIFY_CLIENT_SECRET || '',
-          scopes: process.env.SHOPIFY_SCOPES || 'read_products,write_products',
-          redirectUri: process.env.SHOPIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback',
+          apiKey: (process.env.SHOPIFY_API_KEY || '').trim(),
+          clientSecret: (process.env.SHOPIFY_CLIENT_SECRET || '').trim(),
+          scopes: (process.env.SHOPIFY_SCOPES || 'read_products,write_products').trim(),
+          redirectUri: (process.env.SHOPIFY_REDIRECT_URI || 'http://localhost:3000/auth/callback').trim(),
         },
         rag: {
           embeddingApiKey: process.env.EMBEDDING_API_KEY,
