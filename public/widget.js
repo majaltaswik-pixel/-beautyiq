@@ -9,42 +9,49 @@
     { product: { title: 'Deep Hydra Repair Cream', price: 38.00, imageUrl: '' }, match: 94 },
   ];
 
-  var selectors = ['#ProductInfo', '.product__main', '.product-single__description', '.product-single', '.product-information', '.product__info-wrapper', '.product-info-wrapper', '[data-product-info]', '.product-form__info', '.product__info', '.grid.product', '.product-page--main-content', '#shopify-section-product-template .grid', '.product-template .grid', '.product_area', '#product-info', '.product-info'];
-  var productContainer = null;
-  for (var i = 0; i < selectors.length; i++) {
-    var el = document.querySelector(selectors[i]);
-    if (el && el.offsetParent !== null) { productContainer = el; break; }
-  }
-  if (!productContainer) {
+  function findContainer() {
+    var selectors = ['#ProductInfo', '.product__main', '.product-single__description', '.product-single', '.product-information', '.product__info-wrapper', '.product-info-wrapper', '[data-product-info]', '.product-form__info', '.product__info', '.grid.product', '.product-page--main-content', '#shopify-section-product-template .grid', '.product-template .grid', '.product_area', '#product-info', '.product-info'];
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el && el.offsetParent !== null) return el;
+    }
     var grids = document.querySelectorAll('.grid, .row, .product-layout');
     for (var i = 0; i < grids.length; i++) {
       var kids = grids[i].children;
-      if (kids.length >= 2) { var hasForm = false; for (var j = 0; j < kids.length; j++) { if (kids[j].querySelector('form[action*="cart"], [type="submit"], .product-form')) { hasForm = true; break; } } if (hasForm) { productContainer = grids[i]; break; } }
+      if (kids.length >= 2) { for (var j = 0; j < kids.length; j++) { if (kids[j].querySelector('form[action*="cart"], [type="submit"], .product-form')) return grids[i]; } }
     }
+    return null;
   }
-  if (!productContainer) return;
-  var containerParent = productContainer.parentElement;
-  if (!containerParent) return;
 
+  var target = findContainer();
+  if (!target) return;
+  var parent = target.parentElement;
+  if (!parent) return;
+
+  var css = '#bq-wrap{all:initial;display:flex;flex-direction:row;gap:40px;align-items:flex-start;margin:32px 0;}#bq-wrap>*{flex:1;min-width:0;}#bq-wrap .bq-pw{flex:0 0 560px;max-width:560px;}.bq-p{background:#f9fafb;border:1px solid #d1d5db;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}.bq-p *{box-sizing:border-box;}.bq-h{padding:24px 28px;background:linear-gradient(135deg,#7c3aed,#9333ea);display:flex;align-items:center;gap:14px;}.bq-av{width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}.bq-hi{flex:1;}.bq-ht{font-size:1.5rem;font-weight:700;color:#fff;}.bq-hs{font-size:1.15rem;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:6px;margin-top:4px;}.bq-hd{width:12px;height:12px;background:#4ade80;border-radius:50%;}.bq-b{flex:1;padding:28px;display:flex;flex-direction:column;gap:18px;min-height:350px;max-height:700px;overflow-y:auto;}.bq-m{background:#fff;padding:20px 24px;border-radius:16px;border-bottom-left-radius:5px;font-size:1.3rem;color:#1f2937;line-height:1.7;box-shadow:0 1px 4px rgba(0,0,0,.08);align-self:flex-start;max-width:92%;}.bq-mu{align-self:flex-end;background:#7c3aed;color:#fff;border-bottom-left-radius:16px;border-bottom-right-radius:5px;}.bq-cr{display:flex;gap:16px;align-self:stretch;margin:8px 0;}.bq-cd{flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;min-width:0;}.bq-cd img{width:100%;height:200px;object-fit:cover;display:block;background:#f3f4f6;}.bq-ci{width:100%;height:200px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;}.bq-cii{padding:16px 18px 18px;}.bq-ct{font-weight:600;font-size:1.2rem;color:#111827;line-height:1.3;}.bq-cp{font-size:1.3rem;font-weight:700;color:#059669;margin-top:6px;}.bq-cm{font-size:1.05rem;color:#7c3aed;font-weight:600;margin-top:4px;}.bq-ch{display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;}.bq-c{padding:12px 22px;border:1px solid #c4b5fd;border-radius:100px;font-size:1.1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer;}.bq-c:hover{background:#ede9fe;border-color:#7c3aed;}.bq-in{display:flex;align-items:center;gap:12px;padding:22px 28px;border-top:1px solid #e5e7eb;}.bq-ip{flex:1;padding:16px 22px;border:1px solid #d1d5db;border-radius:14px;font-size:1.2rem;outline:none;background:#fff;color:#1f2937;}.bq-ip:focus{border-color:#7c3aed;}.bq-sb{width:56px;height:56px;background:#7c3aed;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}.bq-sb:disabled{opacity:.4;}.bq-sb svg{width:26px;height:26px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}.bq-sk{padding:10px 22px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:10px;font-size:1.05rem;cursor:pointer;font-weight:600;white-space:nowrap;}.bq-sk:hover{background:rgba(255,255,255,0.25);}.bq-prof{padding:22px 28px;background:#faf5ff;border-bottom:1px solid #e5e7eb;display:none;}.bq-prof.open{display:block;}.bq-pl{font-size:1rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}.bq-sc{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}.bq-sc button{padding:10px 20px;border:1px solid #d1d5db;border-radius:24px;font-size:1rem;cursor:pointer;background:#fff;color:#4b5563;}.bq-sc button.a{border-color:#7c3aed;background:#ede9fe;color:#7c3aed;font-weight:600;}.bq-load{display:flex;align-items:center;gap:14px;padding:14px 0;}.bq-dot{width:12px;height:12px;background:#7c3aed;border-radius:50%;animation:bqP 1.5s infinite;}.bq-lt{font-size:1.1rem;color:#9ca3af;}@keyframes bqP{0%,100%{opacity:1}50%{opacity:.4}}@media(max-width:1200px){#bq-wrap{flex-direction:column;}#bq-wrap .bq-pw{flex:1;max-width:100%;}}';
   var style = document.createElement('style');
-  style.textContent = '#bq-wrap{all:initial;display:flex;gap:40px;align-items:flex-start;margin:40px 0;}#bq-wrap>*{flex:1;min-width:0;}#bq-wrap .bq-pw{flex:0 0 520px;max-width:520px;}.bq-p{background:#f9fafb;border:1px solid #d1d5db;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}.bq-p *{box-sizing:border-box;}.bq-h{padding:22px 24px;background:linear-gradient(135deg,#7c3aed,#9333ea);display:flex;align-items:center;gap:14px;}.bq-av{width:52px;height:52px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}.bq-hi{flex:1;}.bq-ht{font-size:1.25rem;font-weight:700;color:#fff;}.bq-hs{font-size:1rem;color:rgba(255,255,255,0.85);display:flex;align-items:center;gap:6px;margin-top:3px;}.bq-hd{width:10px;height:10px;background:#4ade80;border-radius:50%;}.bq-b{flex:1;padding:24px;display:flex;flex-direction:column;gap:16px;min-height:300px;max-height:600px;overflow-y:auto;}.bq-m{background:#fff;padding:18px 22px;border-radius:16px;border-bottom-left-radius:5px;font-size:1.15rem;color:#1f2937;line-height:1.7;box-shadow:0 1px 4px rgba(0,0,0,.08);align-self:flex-start;max-width:90%;}.bq-mu{align-self:flex-end;background:#7c3aed;color:#fff;border-bottom-left-radius:16px;border-bottom-right-radius:5px;}.bq-cr{display:flex;gap:14px;align-self:stretch;margin:6px 0;}.bq-cd{flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;min-width:0;}.bq-cd img{width:100%;height:180px;object-fit:cover;display:block;background:#f3f4f6;}.bq-ci{width:100%;height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;}.bq-cii{padding:14px 16px 16px;}.bq-ct{font-weight:600;font-size:1.1rem;color:#111827;line-height:1.3;}.bq-cp{font-size:1.15rem;font-weight:700;color:#059669;margin-top:5px;}.bq-cm{font-size:0.95rem;color:#7c3aed;font-weight:600;margin-top:4px;}.bq-ch{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0;}.bq-c{padding:11px 20px;border:1px solid #c4b5fd;border-radius:100px;font-size:1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer;}.bq-c:hover{background:#ede9fe;border-color:#7c3aed;}.bq-in{display:flex;align-items:center;gap:12px;padding:20px 24px;border-top:1px solid #e5e7eb;}.bq-ip{flex:1;padding:14px 20px;border:1px solid #d1d5db;border-radius:14px;font-size:1.1rem;outline:none;background:#fff;color:#1f2937;}.bq-ip:focus{border-color:#7c3aed;}.bq-sb{width:52px;height:52px;background:#7c3aed;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}.bq-sb:disabled{opacity:.4;}.bq-sb svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}.bq-sk{padding:8px 18px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff;border-radius:10px;font-size:0.95rem;cursor:pointer;font-weight:600;white-space:nowrap;}.bq-sk:hover{background:rgba(255,255,255,0.25);}.bq-prof{padding:20px 24px;background:#faf5ff;border-bottom:1px solid #e5e7eb;display:none;}.bq-prof.open{display:block;}.bq-pl{font-size:0.9rem;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;}.bq-sc{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}.bq-sc button{padding:9px 18px;border:1px solid #d1d5db;border-radius:22px;font-size:0.95rem;cursor:pointer;background:#fff;color:#4b5563;}.bq-sc button.a{border-color:#7c3aed;background:#ede9fe;color:#7c3aed;font-weight:600;}.bq-sc button:hover{border-color:#a78bfa;}.bq-load{display:flex;align-items:center;gap:12px;padding:12px 0;}.bq-dot{width:10px;height:10px;background:#7c3aed;border-radius:50%;animation:bqP 1.5s infinite;}.bq-lt{font-size:1rem;color:#9ca3af;}@keyframes bqP{0%,100%{opacity:1}50%{opacity:.4}}@media(max-width:1024px){#bq-wrap{flex-direction:column;}#bq-wrap .bq-pw{flex:1;max-width:100%;}}';
+  style.textContent = css;
   document.head.appendChild(style);
 
-  var wrap = document.createElement('div');
-  wrap.id = 'bq-wrap';
-  wrap.innerHTML =
-    '<div class="bq-pw"><div class="bq-p">' +
-    '<div class="bq-h"><div class="bq-av"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="bq-hi"><div class="bq-ht">Smart Beauty Advisor</div><div class="bq-hs"><span class="bq-hd"></span>Online — typically replies instantly</div></div><button class="bq-sk" id="bq-sk">My Skin</button></div>' +
+  var pw = document.createElement('div');
+  pw.className = 'bq-pw';
+  pw.innerHTML =
+    '<div class="bq-p">' +
+    '<div class="bq-h"><div class="bq-av"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><div class="bq-hi"><div class="bq-ht">Smart Beauty Advisor</div><div class="bq-hs"><span class="bq-hd"></span>Online — typically replies instantly</div></div><button class="bq-sk" id="bq-sk">My Skin</button></div>' +
     '<div class="bq-prof" id="bq-prof"><div class="bq-pl">Skin Type</div><div class="bq-sc" id="bq-skc"></div><div class="bq-pl">Concerns</div><div class="bq-sc" id="bq-coc"></div></div>' +
     '<div class="bq-b" id="bq-b"></div>' +
     '<div class="bq-in"><input class="bq-ip" id="bq-ip" placeholder="Ask about your skin..."><button class="bq-sb" id="bq-sb"><svg viewBox="0 0 24 24"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11zm7.318-19.539l-10.94 10.939"/></svg></button></div>' +
-    '</div></div>';
-  var cw = document.createElement('div');
-  cw.style.flex = '1';
-  cw.style.minWidth = '0';
-  containerParent.insertBefore(wrap, productContainer);
-  cw.appendChild(productContainer);
-  wrap.insertBefore(cw, wrap.firstChild);
+    '</div>';
+
+  // Insert widget panel after target, wrapped in a flex container
+  var wrap = document.createElement('div');
+  wrap.id = 'bq-wrap';
+  parent.insertBefore(wrap, target);
+  // Style the target's column
+  target.style.flex = '1';
+  target.style.minWidth = '0';
+  wrap.appendChild(target);
+  wrap.appendChild(pw);
 
   var SK = ['dry','oily','combination','normal','sensitive'];
   var CO = ['acne','aging','hyperpigmentation','dehydration','redness','texture','dullness','large pores'];
@@ -84,9 +91,9 @@
   function addProdRow(prods) {
     if (!prods || !prods.length) return;
     var wrapper = document.createElement('div');
-    wrapper.style.cssText = 'align-self:flex-start;max-width:90%;width:100%';
+    wrapper.style.cssText = 'align-self:flex-start;max-width:92%;width:100%';
     var row = document.createElement('div');
-    row.style.cssText = 'display:flex;gap:14px';
+    row.style.cssText = 'display:flex;gap:16px';
     prods.slice(0, 2).forEach(function (p) {
       var img = p.product?.imageUrl || p.metadata?.imageUrl || '';
       var t = p.product?.title || p.metadata?.title || p.label || 'Product';
@@ -96,8 +103,8 @@
       var priceStr = pr ? '$' + (typeof pr === 'number' ? pr.toFixed(2) : pr) : '';
       var cd = document.createElement('div');
       cd.style.cssText = 'flex:1;background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;min-width:0';
-      cd.innerHTML = (img ? '<img src="' + img + '" alt="" style="width:100%;height:180px;object-fit:cover;display:block;background:#f3f4f6">' : '<div style="width:100%;height:180px;background:#f3f4f6;display:flex;align-items:center;justify-content:center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>') +
-        '<div style="padding:14px 16px"><div style="font-weight:600;font-size:1.1rem;color:#111827;line-height:1.3">' + t + '</div>' + (priceStr ? '<div style="font-size:1.15rem;font-weight:700;color:#059669;margin-top:5px">' + priceStr + '</div>' : '') + (mt > 0 ? '<div style="font-size:0.95rem;color:#7c3aed;font-weight:600;margin-top:3px">' + mt + '% match for your skin</div>' : '') + '</div>';
+      cd.innerHTML = (img ? '<img src="' + img + '" alt="" style="width:100%;height:200px;object-fit:cover;display:block;background:#f3f4f6">' : '<div style="width:100%;height:200px;background:#f3f4f6;display:flex;align-items:center;justify-content:center"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>') +
+        '<div style="padding:16px 18px"><div style="font-weight:600;font-size:1.2rem;color:#111827;line-height:1.3">' + t + '</div>' + (priceStr ? '<div style="font-size:1.3rem;font-weight:700;color:#059669;margin-top:6px">' + priceStr + '</div>' : '') + (mt > 0 ? '<div style="font-size:1.05rem;color:#7c3aed;font-weight:600;margin-top:4px">' + mt + '% match for your skin</div>' : '') + '</div>';
       row.appendChild(cd);
     });
     wrapper.appendChild(row);
@@ -107,10 +114,10 @@
 
   function addChips(items) {
     var ch = document.createElement('div');
-    ch.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;margin:6px 0;align-self:flex-start;max-width:90%';
+    ch.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;margin:8px 0;align-self:flex-start;max-width:92%';
     items.forEach(function (a) {
       var b = document.createElement('button');
-      b.style.cssText = 'padding:11px 20px;border:1px solid #c4b5fd;border-radius:100px;font-size:1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer';
+      b.style.cssText = 'padding:12px 22px;border:1px solid #c4b5fd;border-radius:100px;font-size:1.1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer';
       b.onmouseenter = function () { b.style.background = '#ede9fe'; b.style.borderColor = '#7c3aed'; };
       b.onmouseleave = function () { b.style.background = '#fff'; b.style.borderColor = '#c4b5fd'; };
       b.textContent = a.text;
@@ -138,8 +145,8 @@
     ip.value = '';
     sb.disabled = true;
     var ld = document.createElement('div');
-    ld.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 0;align-self:flex-start';
-    ld.innerHTML = '<div style="width:10px;height:10px;background:#7c3aed;border-radius:50%;animation:bqP1 1.5s infinite"></div><div style="width:10px;height:10px;background:#7c3aed;border-radius:50%;animation:bqP2 1.5s infinite"></div><div style="width:10px;height:10px;background:#7c3aed;border-radius:50%;animation:bqP3 1.5s infinite"></div><span style="font-size:1rem;color:#9ca3af">Finding your perfect skincare match...</span>';
+    ld.style.cssText = 'display:flex;align-items:center;gap:14px;padding:14px 0;align-self:flex-start';
+    ld.innerHTML = '<div style="width:12px;height:12px;background:#7c3aed;border-radius:50%;animation:bqP1 1.5s infinite"></div><div style="width:12px;height:12px;background:#7c3aed;border-radius:50%;animation:bqP2 1.5s infinite"></div><div style="width:12px;height:12px;background:#7c3aed;border-radius:50%;animation:bqP3 1.5s infinite"></div><span style="font-size:1.1rem;color:#9ca3af">Finding your perfect skincare match...</span>';
     bd.appendChild(ld);
     bd.scrollTop = bd.scrollHeight;
     fetch(apiUrl + '/widget/recommend', {
@@ -159,8 +166,8 @@
       if (prods.length) { addProdRow(prods); } else { addProdRow(DEMO_PRODS); }
       addMsg('Together, these two work synergistically — the serum penetrates deep, and the cream locks in moisture. Want me to add both to your cart? You\'ll save 15% with the bundle.');
       if (routine && routine.length) {
-        var h = '<div style="font-weight:700;font-size:1rem;color:#7c3aed;margin-bottom:8px">Your Routine</div>';
-        routine.forEach(function (s, i) { h += '<div style="display:flex;align-items:center;gap:10px;padding:5px 0;font-size:1rem"><span style="width:26px;height:26px;background:#7c3aed;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700">' + (i + 1) + '</span><span>' + s.name + '</span></div>'; });
+        var h = '<div style="font-weight:700;font-size:1.15rem;color:#7c3aed;margin-bottom:10px">Your Routine</div>';
+        routine.forEach(function (s, i) { h += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:1.1rem"><span style="width:28px;height:28px;background:#7c3aed;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700">' + (i + 1) + '</span><span>' + s.name + '</span></div>'; });
         addMsg(h);
       }
       addChips([
