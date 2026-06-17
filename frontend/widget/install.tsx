@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 const FEATURES = [
-  { title: 'Product Recommendation', desc: 'AI-powered product matching based on skin type, concerns, ingredients, and purchase history. Like a dermatologist in your store.', icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
+  { title: 'Product Recommendation', desc: 'Smart product matching based on skin type, concerns, ingredients, and purchase history. Like a dermatologist in your store.', icon: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5' },
   { title: 'Autonomous Support', desc: 'Instant answers to returns, shipping, ingredient questions, and usage instructions. 68% of tickets resolved without a human.', icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z' },
   { title: 'Upsell & Cross-Sell', desc: 'Intelligent bundling and routine recommendations that increase average order value by $18.50+ per transaction.', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z' },
   { title: 'Routine Builder', desc: 'Automatic skincare routine generation — cleanser, serum, moisturizer, SPF. Each step linked to a product they can add to cart.', icon: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2' },
@@ -65,7 +65,7 @@ export const WidgetInstall: React.FC<WidgetInstallProps> = ({ shop }) => {
             <span style={{ fontWeight: 600, fontSize: 14, color: '#166534' }}>Widget is live on your store</span>
           </div>
           <div style={{ padding: 24, fontSize: 13, color: '#4b5563', lineHeight: 1.7 }}>
-            <p style={{ marginBottom: 12 }}>The Beauty Advisor panel appears automatically on the right side of every product page. Your customers can get AI skincare recommendations, ask questions, and discover routines — without leaving the page.</p>
+            <p style={{ marginBottom: 12 }}>The Beauty Advisor panel appears automatically on the right side of every product page. Your customers can get smart skincare recommendations, ask questions, and discover routines — without leaving the page.</p>
             <p style={{ marginBottom: 12 }}><strong>To preview:</strong> Open a product on your storefront and look for the purple Beauty Advisor panel.</p>
             <p><strong>To disable:</strong> Click Uninstall below, or remove the script tag via Shopify admin → Settings → Online Store → Script Tags.</p>
           </div>
