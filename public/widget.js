@@ -78,7 +78,19 @@
   });
   document.getElementById('bq-sk').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); pp.classList.toggle('open'); });
 
-
+  // Capture phase — intercepts before theme JS can block
+  var _sending = false;
+  document.addEventListener('pointerdown', function (e) {
+    if (_sending) return;
+    for (var el = e.target; el; el = el.parentElement) {
+      if (el.classList && el.classList.contains('bq-c')) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (el._q) { _sending = true; ip.value = el._q; send(); }
+        return;
+      }
+    }
+  }, true);
 
   function addMsg(html, isUser) {
     var d = document.createElement('div');
@@ -127,8 +139,7 @@
       b.className = 'bq-c';
       b.style.cssText = 'padding:12px 22px;border:1px solid #c4b5fd;border-radius:100px;font-size:1.1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer;z-index:2147483647;position:relative;user-select:none';
       b.textContent = a.text;
-      b.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); chipClick(a); });
-      b.addEventListener('touchstart', function (e) { e.preventDefault(); e.stopPropagation(); chipClick(a); });
+      b._q = a.query;
       ch.appendChild(b);
     });
     bd.appendChild(ch);
@@ -177,11 +188,13 @@
         { text: 'I have a question', query: 'I have a skincare question' },
       ]);
       sb.disabled = false;
+      _sending = false;
     })
     .catch(function () {
       ld.remove();
       showDemo();
       sb.disabled = false;
+      _sending = false;
     });
   }
 
