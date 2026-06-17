@@ -15,7 +15,8 @@ import { handleRecommendations, handleRoutineRecommendation } from './routes/rec
 import { handleRoutines, handleRoutineSteps } from './routes/routines';
 import { handleIngestEvent } from './routes/ingest_event';
 import { handleCreateCheckout, handleWebhook, handleCreatePortal, handleGetPlans } from './routes/billing';
-import { validateHmac, exchangeAccessToken, storeSession, generateAuthUrl } from '../core/shopify/auth';
+import { validateHmac, exchangeAccessToken, storeSession, generateAuthUrl, getSession } from '../core/shopify/auth';
+import { ShopifyClient } from '../core/shopify/client';
 import path from 'path';
 import fs from 'fs';
 
@@ -117,6 +118,38 @@ export class BeautyIQServer {
       try {
         const result = await handleRecommend(req.body, this.system.orchestrator);
         res.json(result);
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    });
+
+    // Widget install/status (auth-protected)
+    const WIDGET_SRC = 'https://www.beautyiqapp.com/widget.js';
+    this.app.get('/api/v1/widget/status', authMiddleware, async (req: Request, res: Response) => {
+      try {
+        const shop = (req.query.shop || req.body.shop) as string;
+        if (!shop) return res.status(400).json({ error: 'Missing shop' });
+        const client = new ShopifyClient(shop);
+        const tags = await client.request<any>('GET', 'script_tags.json?limit=250');
+        const installed = (tags.script_tags || []).some((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
+        res.json({ installed });
+      } catch (err: any) {
+        res.json({ installed: false, error: err.message });
+      }
+    });
+    this.app.post('/api/v1/widget/install', authMiddleware, async (req: Request, res: Response) => {
+      try {
+        const shop = (req.query.shop || req.body.shop) as string;
+        if (!shop) return res.status(400).json({ error: 'Missing shop' });
+        const client = new ShopifyClient(shop);
+        // Check if already installed
+        const tags = await client.request<any>('GET', 'script_tags.json?limit=250');
+        const existing = (tags.script_tags || []).find((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
+        if (existing) {
+          return res.json({ installed: true, id: existing.id, message: 'Widget already installed' });
+        }
+        const result = await client.createScriptTag(WIDGET_SRC + '?shop=' + encodeURIComponent(shop), 'online_store');
+        res.json({ installed: true, id: result.script_tag?.id, message: 'Widget installed successfully' });
       } catch (err: any) {
         res.status(500).json({ error: err.message });
       }

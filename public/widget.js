@@ -1,18 +1,81 @@
 (function () {
-  var shop =
-    document.currentScript?.getAttribute('data-shop') || '';
+  // Only run on product pages
+  if (!window.location.pathname.match(/\/products\/.+/)) return;
+
   var apiUrl =
     document.currentScript?.getAttribute('data-api') ||
     'https://www.beautyiqapp.com';
-  if (!shop) shop = window.location.hostname;
+  var shop =
+    document.currentScript?.getAttribute('data-shop') ||
+    window.location.hostname;
 
-  var root = document.createElement('div');
-  root.id = 'bq-advisor';
-  root.innerHTML =
-    '<style>' +
-    '#bq-advisor{all:initial;direction:ltr;display:block;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}' +
-    '#bq-advisor *{box-sizing:border-box;margin:0;padding:0;}' +
-    '.bq-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;max-width:100%;}' +
+  // Try to find the product page main container
+  var selectors = [
+    '#ProductInfo',
+    '.product__main',
+    '.product-single__description',
+    '.product-single',
+    '.product-information',
+    '.product__info-wrapper',
+    '.product-info-wrapper',
+    '[data-product-info]',
+    '.product-form__info',
+    '.product__info',
+    '.grid.product',
+    '.product-page--main-content',
+    '#shopify-section-product-template .grid',
+    '.product-template .grid',
+    '.product_area',
+    '#product-info',
+    '.product-info',
+  ];
+
+  var productContainer = null;
+  for (var i = 0; i < selectors.length; i++) {
+    var el = document.querySelector(selectors[i]);
+    if (el && el.offsetParent !== null) {
+      productContainer = el;
+      break;
+    }
+  }
+
+  // Fallback: look for a grid that contains both images and product info
+  if (!productContainer) {
+    var grids = document.querySelectorAll('.grid, .row, .product-layout');
+    for (var i = 0; i < grids.length; i++) {
+      var kids = grids[i].children;
+      if (kids.length >= 2) {
+        var hasForm = false;
+        for (var j = 0; j < kids.length; j++) {
+          if (
+            kids[j].querySelector('form[action*="cart"], [type="submit"], .product-form')
+          ) {
+            hasForm = true;
+            break;
+          }
+        }
+        if (hasForm) {
+          productContainer = grids[i];
+          break;
+        }
+      }
+    }
+  }
+
+  if (!productContainer) return;
+
+  // If container already has a flex layout, work with it
+  var containerParent = productContainer.parentElement;
+  if (!containerParent) return;
+
+  // Inject styles
+  var style = document.createElement('style');
+  style.textContent =
+    '#bq-advisor-wrap{all:initial;display:flex;gap:24px;align-items:flex-start;margin:24px 0;}' +
+    '#bq-advisor-wrap>*{flex:1;min-width:0;}' +
+    '#bq-advisor-wrap .bq-panel-wrap{flex:0 0 340px;max-width:340px;}' +
+    '.bq-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}' +
+    '.bq-panel *{box-sizing:border-box;margin:0;padding:0;}' +
     '.bq-header{padding:14px 16px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;display:flex;justify-content:space-between;align-items:center;}' +
     '.bq-header-l{display:flex;align-items:center;gap:8px;}' +
     '.bq-av{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}' +
@@ -27,7 +90,7 @@
     '.bq-chip{padding:4px 10px;border:1px solid #d1d5db;border-radius:14px;font-size:11px;cursor:pointer;background:#fff;color:#4b5563;transition:all .12s;}' +
     '.bq-chip.active{border-color:#7c3aed;background:#ede9fe;color:#7c3aed;font-weight:600;}' +
     '.bq-chip:hover{border-color:#a78bfa;}' +
-    '.bq-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:320px;}' +
+    '.bq-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:340px;}' +
     '.bq-msg{max-width:88%;padding:9px 13px;border-radius:11px;font-size:12px;line-height:1.5;word-wrap:break-word;}' +
     '.bq-msg-bot{background:#fff;border-bottom-left-radius:3px;align-self:flex-start;color:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.06);}' +
     '.bq-msg-user{background:#7c3aed;border-bottom-right-radius:3px;align-self:flex-end;color:#fff;}' +
@@ -43,8 +106,13 @@
     '.bq-load{display:flex;align-items:center;gap:6px;padding:4px;}' +
     '.bq-dot{width:6px;height:6px;background:#7c3aed;border-radius:50%;animation:bqP 1.5s infinite;}' +
     '.bq-ltxt{color:#9ca3af;font-size:11px;}' +
-    '@keyframes bqP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}' +
-    '</style>' +
+    '@media(max-width:768px){#bq-advisor-wrap{flex-direction:column;}#bq-advisor-wrap .bq-panel-wrap{flex:1;max-width:100%;}}' +
+    '@keyframes bqP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}';
+
+  document.head.appendChild(style);
+
+  // Build the advisor panel markup
+  var advisorHTML =
     '<div class="bq-panel">' +
     '<div class="bq-header">' +
     '<div class="bq-header-l">' +
@@ -59,29 +127,37 @@
     '<div class="bq-prof-lbl">Concerns</div>' +
     '<div class="bq-chips" id="bq-co-chips"></div>' +
     '</div>' +
-    '<div class="bq-body" id="bq-body"></div>' +
+    '<div class="bq-body" id="bq-body">' +
+    '<div class="bq-msg bq-msg-bot">Hi! I\'m your AI Beauty Advisor. Ask me about this product or tell me about your skin.</div>' +
+    '</div>' +
     '<div class="bq-foot">' +
     '<input class="bq-inp" id="bq-inp" placeholder="Ask about your skin...">' +
     '<button class="bq-snd" id="bq-snd">Send</button>' +
     '</div>' +
     '</div>';
 
-  document.currentScript?.parentNode?.insertBefore(
-    root,
-    document.currentScript.nextSibling
-  );
+  // Wrap the product container + advisor in a flex layout
+  var wrap = document.createElement('div');
+  wrap.id = 'bq-advisor-wrap';
 
+  var contentWrap = document.createElement('div');
+  contentWrap.style.flex = '1';
+  contentWrap.style.minWidth = '0';
+  contentWrap.className = 'bq-content-wrap';
+
+  var panelWrap = document.createElement('div');
+  panelWrap.className = 'bq-panel-wrap';
+  panelWrap.innerHTML = advisorHTML;
+
+  // Move the product container into the content wrapper
+  containerParent.insertBefore(wrap, productContainer);
+  contentWrap.appendChild(productContainer);
+  wrap.appendChild(contentWrap);
+  wrap.appendChild(panelWrap);
+
+  // --- Advisor Logic ---
   var SKIN_TYPES = ['dry', 'oily', 'combination', 'normal', 'sensitive'];
-  var CONCERNS = [
-    'acne',
-    'aging',
-    'hyperpigmentation',
-    'dehydration',
-    'redness',
-    'texture',
-    'dullness',
-    'large pores',
-  ];
+  var CONCERNS = ['acne', 'aging', 'hyperpigmentation', 'dehydration', 'redness', 'texture', 'dullness', 'large pores'];
   var profile = { skinType: '', concerns: [] };
 
   var skChips = document.getElementById('bq-sk-chips');
@@ -90,24 +166,14 @@
   var body = document.getElementById('bq-body');
   var inp = document.getElementById('bq-inp');
   var snd = document.getElementById('bq-snd');
-
-  function greeting() {
-    var m = document.createElement('div');
-    m.className = 'bq-msg bq-msg-bot';
-    m.textContent =
-      "Hi! I'm your AI Beauty Advisor. Tell me about your skin and I'll recommend the perfect products for you.";
-    body.appendChild(m);
-  }
-  greeting();
+  if (!skChips || !coChips || !prof || !body || !inp || !snd) return;
 
   SKIN_TYPES.forEach(function (t) {
     var b = document.createElement('button');
     b.className = 'bq-chip';
     b.textContent = t.charAt(0).toUpperCase() + t.slice(1);
     b.onclick = function () {
-      skChips.querySelectorAll('.bq-chip').forEach(function (c) {
-        c.classList.remove('active');
-      });
+      skChips.querySelectorAll('.bq-chip').forEach(function (c) { c.classList.remove('active'); });
       b.classList.add('active');
       profile.skinType = t;
     };
@@ -144,11 +210,7 @@
         c.className = 'bq-pcard';
         var t = p.product?.title || p.metadata?.title || p.label || 'Product';
         var pr = p.product?.price || p.metadata?.price;
-        c.innerHTML =
-          '<div class="bq-pn">' +
-          t +
-          '</div>' +
-          (pr ? '<div class="bq-pp">$' + pr + '</div>' : '');
+        c.innerHTML = '<div class="bq-pn">' + t + '</div>' + (pr ? '<div class="bq-pp">$' + pr + '</div>' : '');
         pd.appendChild(c);
       });
       body.appendChild(pd);
@@ -163,54 +225,34 @@
     inp.value = '';
     snd.disabled = true;
     snd.textContent = '...';
-
     var ld = document.createElement('div');
     ld.className = 'bq-load';
-    ld.innerHTML =
-      '<div class="bq-dot"></div><div class="bq-dot" style="animation-delay:.2s"></div><div class="bq-dot" style="animation-delay:.4s"></div><span class="bq-ltxt">Analyzing...</span>';
+    ld.innerHTML = '<div class="bq-dot"></div><div class="bq-dot" style="animation-delay:.2s"></div><div class="bq-dot" style="animation-delay:.4s"></div><span class="bq-ltxt">Analyzing...</span>';
     body.appendChild(ld);
     body.scrollTop = body.scrollHeight;
-
     fetch(apiUrl + '/widget/recommend', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: text,
-        shopDomain: shop,
-        skinType: profile.skinType,
-        skinConcerns: profile.concerns,
-        allergies: [],
-      }),
+      body: JSON.stringify({ query: text, shopDomain: shop, skinType: profile.skinType, skinConcerns: profile.concerns, allergies: [] }),
     })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (data) {
-        ld.remove();
-        var payload = data.payload || data;
-        var msg =
-          payload.reasoning?.[1] ||
-          payload.reasoning?.[0] ||
-          payload.explanation ||
-          'Here are my recommendations based on your profile.';
-        var prods = payload.recommendations || payload.products || [];
-        push(msg, 'bot', prods);
-        snd.disabled = false;
-        snd.textContent = 'Send';
-      })
-      .catch(function () {
-        ld.remove();
-        push(
-          "Sorry, I couldn't process that. Please try again.",
-          'bot'
-        );
-        snd.disabled = false;
-        snd.textContent = 'Send';
-      });
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      ld.remove();
+      var payload = data.payload || data;
+      var msg = payload.reasoning?.[1] || payload.reasoning?.[0] || payload.explanation || 'Here are my recommendations based on your profile.';
+      var prods = payload.recommendations || payload.products || [];
+      push(msg, 'bot', prods);
+      snd.disabled = false;
+      snd.textContent = 'Send';
+    })
+    .catch(function () {
+      ld.remove();
+      push("Sorry, I couldn't process that. Please try again.", 'bot');
+      snd.disabled = false;
+      snd.textContent = 'Send';
+    });
   }
 
   snd.onclick = send;
-  inp.onkeydown = function (e) {
-    if (e.key === 'Enter') send();
-  };
+  inp.onkeydown = function (e) { if (e.key === 'Enter') send(); };
 })();
