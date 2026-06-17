@@ -94,7 +94,7 @@ export class ShopifyClient {
 
   async createScriptTag(src: string, displayScope: string = 'all'): Promise<any> {
     return this.request<any>('POST', 'script_tags.json', {
-      script_tag: { src, display_scope: displayScope },
+      script_tag: { event: 'onload', src, display_scope: displayScope },
     });
   }
 
