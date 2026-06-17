@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 export interface ShopifyToken {
   accessToken: string;
@@ -14,6 +16,39 @@ export interface Session {
 }
 
 const SESSION_STORE = new Map<string, Session>();
+const SESSION_FILE = path.join(__dirname, '..', '..', '..', 'data', 'sessions.json');
+
+function loadSessions(): void {
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      const raw = fs.readFileSync(SESSION_FILE, 'utf-8');
+      const data = JSON.parse(raw);
+      for (const [shop, s] of Object.entries(data)) {
+        const sess = s as any;
+        SESSION_STORE.set(shop, {
+          shop: sess.shop,
+          accessToken: sess.accessToken,
+          expiresAt: sess.expiresAt ? new Date(sess.expiresAt) : null,
+        });
+      }
+    }
+  } catch {}
+}
+
+function saveSessions(): void {
+  try {
+    const dir = path.dirname(SESSION_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    const obj: Record<string, any> = {};
+    for (const [shop, s] of SESSION_STORE.entries()) {
+      obj[shop] = { shop: s.shop, accessToken: s.accessToken, expiresAt: s.expiresAt?.toISOString() ?? null };
+    }
+    fs.writeFileSync(SESSION_FILE, JSON.stringify(obj, null, 2), 'utf-8');
+  } catch {}
+}
+
+// Load persisted sessions on startup
+loadSessions();
 
 export function generateAuthUrl(shop: string, apiKey: string, scopes: string, redirectUri: string): string {
   const state = crypto.randomBytes(16).toString('hex');
@@ -48,6 +83,7 @@ export function storeSession(shop: string, accessToken: string, expiresIn: numbe
     accessToken,
     expiresAt: expiresIn ? new Date(Date.now() + expiresIn * 1000) : null,
   });
+  saveSessions();
 }
 
 export function getSession(shop: string): Session | undefined {
@@ -55,6 +91,7 @@ export function getSession(shop: string): Session | undefined {
   if (!session) return undefined;
   if (session.expiresAt && session.expiresAt < new Date()) {
     SESSION_STORE.delete(shop);
+    saveSessions();
     return undefined;
   }
   return session;

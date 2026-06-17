@@ -25,11 +25,15 @@ export const WidgetInstall: React.FC<WidgetInstallProps> = ({ shop }) => {
   const [loading, setLoading] = useState(true);
   const [installing, setInstalling] = useState(false);
   const [error, setError] = useState('');
+  const [needsAuth, setNeedsAuth] = useState(false);
 
   useEffect(() => {
     fetch(`/api/v1/widget/status?shop=${shop}`)
       .then(r => r.json())
-      .then(d => { setInstalled(d.installed); setLoading(false); })
+      .then(d => {
+        if (d.error?.includes('No active session')) { setNeedsAuth(true); setLoading(false); return; }
+        setInstalled(d.installed); setLoading(false);
+      })
       .catch(() => { setInstalled(false); setLoading(false); });
   }, [shop]);
 
@@ -43,6 +47,7 @@ export const WidgetInstall: React.FC<WidgetInstallProps> = ({ shop }) => {
         body: JSON.stringify({ shop }),
       });
       const d = await r.json();
+      if (d.error?.includes('No active session')) { setNeedsAuth(true); setInstalling(false); return; }
       if (d.installed) setInstalled(true);
       else setError(d.error || 'Installation failed');
     } catch (e: any) {
@@ -54,6 +59,23 @@ export const WidgetInstall: React.FC<WidgetInstallProps> = ({ shop }) => {
 
   if (loading) {
     return <div style={{ textAlign: 'center', padding: 80, color: '#9ca3af', fontSize: 13 }}>Loading...</div>;
+  }
+
+  if (needsAuth) {
+    return (
+      <div style={maxW}>
+        <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '32px 40px', textAlign: 'center' }}>
+          <div style={{ fontSize: 32, marginBottom: 12 }}>🔐</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: '#9a3412', marginBottom: 8 }}>Authentication required</div>
+          <div style={{ fontSize: 13, color: '#c2410c', marginBottom: 20, lineHeight: 1.6 }}>
+            Your session expired after the last update. Click below to reconnect your store — you'll be redirected back here automatically.
+          </div>
+          <a href={`https://www.beautyiqapp.com/auth/install?shop=${shop}`} target="_top" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '14px 32px', background: '#ea580c', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, textDecoration: 'none' }}>
+            Reconnect Store
+          </a>
+        </div>
+      </div>
+    );
   }
 
   if (installed) {
