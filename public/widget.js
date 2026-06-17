@@ -122,19 +122,13 @@
     pp.classList.toggle('open');
   });
 
-  // Capture phase for chip clicks (Shopify theme compatibility)
-  var _sending = false;
-  document.addEventListener('pointerdown', function (e) {
-    if (_sending) return;
+  // Fallback: capture phase for chip clicks
+  document.addEventListener('click', function (e) {
     for (var el = e.target; el; el = el.parentElement) {
       if (el.classList && el.classList.contains('bq-c')) {
         e.preventDefault();
         e.stopPropagation();
-        if (el._q) {
-          _sending = true;
-          ip.value = el._q;
-          send();
-        }
+        if (el._q) { ip.value = el._q; send(); }
         return;
       }
     }
@@ -201,6 +195,8 @@
       b.className = 'bq-c';
       b.textContent = a.text;
       b._q = a.query;
+      b.__bq_click = function () { ip.value = a.query; send(); };
+      b.setAttribute('onclick', 'event.preventDefault();event.stopPropagation();this.__bq_click()');
       ch.appendChild(b);
     });
 
@@ -272,13 +268,11 @@
         ]);
 
         sb.disabled = false;
-        _sending = false;
       })
       .catch(function () {
         ld.remove();
         showDemo();
         sb.disabled = false;
-        _sending = false;
       });
   }
 
