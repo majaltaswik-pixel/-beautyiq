@@ -130,7 +130,7 @@ export class BeautyIQServer {
         const shop = (req.query.shop || req.body.shop) as string;
         if (!shop) return res.status(400).json({ error: 'Missing shop' });
         const client = new ShopifyClient(shop);
-        const tags = await client.request<any>('GET', 'script_tags.json?limit=250');
+        const tags = await client.getScriptTags();
         const installed = (tags.script_tags || []).some((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
         res.json({ installed });
       } catch (err: any) {
@@ -142,8 +142,7 @@ export class BeautyIQServer {
         const shop = (req.query.shop || req.body.shop) as string;
         if (!shop) return res.status(400).json({ error: 'Missing shop' });
         const client = new ShopifyClient(shop);
-        // Check if already installed
-        const tags = await client.request<any>('GET', 'script_tags.json?limit=250');
+        const tags = await client.getScriptTags();
         const existing = (tags.script_tags || []).find((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
         if (existing) {
           return res.json({ installed: true, id: existing.id, message: 'Widget already installed' });

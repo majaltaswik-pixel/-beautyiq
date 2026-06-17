@@ -95,6 +95,10 @@ export class ShopifyClient {
     });
   }
 
+  async getScriptTags(): Promise<any> {
+    return this.request<any>('GET', 'script_tags.json?limit=250');
+  }
+
   async getShopInfo(): Promise<any> {
     return this.request<any>('GET', 'shop.json');
   }
