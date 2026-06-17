@@ -39,9 +39,13 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
     return next();
   }
 
-  if (req.query?.shop && req.query?.timestamp) {
-    const shop = req.query.shop as string;
-    (req as any).shopDomain = shop;
+  if (req.query?.shop) {
+    (req as any).shopDomain = req.query.shop;
+    return next();
+  }
+
+  if (req.body?.shop) {
+    (req as any).shopDomain = req.body.shop;
     return next();
   }
 
