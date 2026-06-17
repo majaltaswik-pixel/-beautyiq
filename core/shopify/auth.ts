@@ -53,7 +53,7 @@ loadSessions();
 export function generateAuthUrl(shop: string, apiKey: string, scopes: string, redirectUri: string): string {
   const state = crypto.randomBytes(16).toString('hex');
   const encodedRedirect = encodeURIComponent(redirectUri);
-  return `https://admin.shopify.com/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodedRedirect}&state=${state}&shop=${encodeURIComponent(shop)}`;
+  return `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodedRedirect}&state=${state}`;
 }
 
 export function validateHmac(queryString: string, clientSecret: string): boolean {
