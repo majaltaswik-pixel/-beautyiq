@@ -52,9 +52,8 @@ loadSessions();
 
 export function generateAuthUrl(shop: string, apiKey: string, scopes: string, redirectUri: string): string {
   const state = crypto.randomBytes(16).toString('hex');
-  const nonce = crypto.randomBytes(16).toString('hex');
-  // Try new admin.shopify.com format first, fallback to legacy
-  return `https://${shop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  // Custom distribution apps use admin.shopify.com for OAuth
+  return `https://admin.shopify.com/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
 }
 
 export function validateHmac(queryString: string, clientSecret: string): boolean {
@@ -88,13 +87,22 @@ export function storeSession(shop: string, accessToken: string, expiresIn: numbe
 
 export function getSession(shop: string): Session | undefined {
   const session = SESSION_STORE.get(shop);
-  if (!session) return undefined;
-  if (session.expiresAt && session.expiresAt < new Date()) {
-    SESSION_STORE.delete(shop);
-    saveSessions();
-    return undefined;
+  if (session) {
+    if (session.expiresAt && session.expiresAt < new Date()) {
+      SESSION_STORE.delete(shop);
+      saveSessions();
+      return undefined;
+    }
+    return session;
   }
-  return session;
+  // Fallback: use env var access token for any shop
+  const fallbackToken = process.env.SHOPIFY_ACCESS_TOKEN;
+  if (fallbackToken) {
+    const fallback: Session = { shop, accessToken: fallbackToken, expiresAt: null };
+    SESSION_STORE.set(shop, fallback);
+    return fallback;
+  }
+  return undefined;
 }
 
 export function verifyWebhook(body: string, hmacHeader: string, clientSecret: string): boolean {
