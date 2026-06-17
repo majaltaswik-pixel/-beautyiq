@@ -1,11 +1,11 @@
 # BeautyIQ Revenue System
 name = "BeautyIQ"
 client_id = "2e14090ef13ee27f9547bdb4b77dc8a3"
-application_url = "https://follicle-stoop-deflected.ngrok-free.dev"
+application_url = "https://www.beautyiqapp.com"
 
 [auth]
 redirect_urls = [
-  "https://follicle-stoop-deflected.ngrok-free.dev/auth/callback"
+  "https://www.beautyiqapp.com/auth/callback"
 ]
 
 [access_scopes]
