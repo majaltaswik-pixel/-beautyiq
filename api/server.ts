@@ -169,6 +169,10 @@ export class BeautyIQServer {
 
     const api = express.Router();
 
+    api.get('/health', (_req: Request, res: Response) => {
+      res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
+    });
+
     api.use(authMiddleware);
     api.post('/billing/customer-portal', handleCreatePortal);
 
@@ -192,10 +196,6 @@ export class BeautyIQServer {
     api.post('/recommendations/routine', this.asyncHandler(handleRoutineRecommendation));
     api.get('/routines', this.asyncHandler(handleRoutines));
     api.get('/routines/:id/steps', this.asyncHandler(handleRoutineSteps));
-
-    api.get('/health', (_req: Request, res: Response) => {
-      res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
-    });
 
     this.app.use('/api/v1', api);
 
