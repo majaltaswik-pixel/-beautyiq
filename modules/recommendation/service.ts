@@ -68,7 +68,7 @@ export class RecommendationService {
       action: 'product_recommendation',
       payload: {
         recommendations: topProducts.map((p) => ({
-          product: { id: p.id, title: p.metadata?.title || p.label, price: p.metadata?.price },
+          product: { id: p.id, title: p.metadata?.title || p.label, price: p.metadata?.price, imageUrl: p.metadata?.imageUrl || p.imageUrl || p.properties?.imageUrl || '' },
           score: p.score,
           matchReasons: p.matchReasons || [],
           ingredientAnalysis: this.analyzeIngredients(p, profile),
