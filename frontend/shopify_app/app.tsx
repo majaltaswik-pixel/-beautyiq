@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dashboard } from '../dashboard/index';
 import { WidgetInstall } from '../widget/install';
+import { FeatureRoutine } from '../features/routine';
 
 interface AppProps {
   shop: string;
@@ -9,7 +10,8 @@ interface AppProps {
 }
 
 const TABS = [
-  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'dashboard', label: 'Revenue Dashboard' },
+  { id: 'routine', label: 'Routine Builder' },
   { id: 'widget', label: 'Widget' },
 ] as const;
 
@@ -75,6 +77,7 @@ export const ShopifyApp: React.FC<AppProps> = ({ shop, host, apiKey }) => {
       </nav>
       <main style={main}>
         {activeTab === 'dashboard' && <Dashboard shop={shop} shopData={shopData} />}
+        {activeTab === 'routine' && <FeatureRoutine />}
         {activeTab === 'widget' && <WidgetInstall shop={shop} />}
       </main>
     </div>

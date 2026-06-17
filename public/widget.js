@@ -1,163 +1,64 @@
 (function () {
-  // Only run on product pages
   if (!window.location.pathname.match(/\/products\/.+/)) return;
 
-  var apiUrl =
-    document.currentScript?.getAttribute('data-api') ||
-    'https://www.beautyiqapp.com';
-  var shop =
-    document.currentScript?.getAttribute('data-shop') ||
-    window.location.hostname;
+  var apiUrl = document.currentScript?.getAttribute('data-api') || 'https://www.beautyiqapp.com';
+  var shop = document.currentScript?.getAttribute('data-shop') || window.location.hostname;
 
-  // Try to find the product page main container
-  var selectors = [
-    '#ProductInfo',
-    '.product__main',
-    '.product-single__description',
-    '.product-single',
-    '.product-information',
-    '.product__info-wrapper',
-    '.product-info-wrapper',
-    '[data-product-info]',
-    '.product-form__info',
-    '.product__info',
-    '.grid.product',
-    '.product-page--main-content',
-    '#shopify-section-product-template .grid',
-    '.product-template .grid',
-    '.product_area',
-    '#product-info',
-    '.product-info',
-  ];
-
+  var selectors = ['#ProductInfo', '.product__main', '.product-single__description', '.product-single', '.product-information', '.product__info-wrapper', '.product-info-wrapper', '[data-product-info]', '.product-form__info', '.product__info', '.grid.product', '.product-page--main-content', '#shopify-section-product-template .grid', '.product-template .grid', '.product_area', '#product-info', '.product-info'];
   var productContainer = null;
   for (var i = 0; i < selectors.length; i++) {
     var el = document.querySelector(selectors[i]);
-    if (el && el.offsetParent !== null) {
-      productContainer = el;
-      break;
-    }
+    if (el && el.offsetParent !== null) { productContainer = el; break; }
   }
-
-  // Fallback: look for a grid that contains both images and product info
   if (!productContainer) {
     var grids = document.querySelectorAll('.grid, .row, .product-layout');
     for (var i = 0; i < grids.length; i++) {
       var kids = grids[i].children;
       if (kids.length >= 2) {
         var hasForm = false;
-        for (var j = 0; j < kids.length; j++) {
-          if (
-            kids[j].querySelector('form[action*="cart"], [type="submit"], .product-form')
-          ) {
-            hasForm = true;
-            break;
-          }
-        }
-        if (hasForm) {
-          productContainer = grids[i];
-          break;
-        }
+        for (var j = 0; j < kids.length; j++) { if (kids[j].querySelector('form[action*="cart"], [type="submit"], .product-form')) { hasForm = true; break; } }
+        if (hasForm) { productContainer = grids[i]; break; }
       }
     }
   }
-
   if (!productContainer) return;
-
-  // If container already has a flex layout, work with it
   var containerParent = productContainer.parentElement;
   if (!containerParent) return;
 
-  // Inject styles
   var style = document.createElement('style');
-  style.textContent =
-    '#bq-advisor-wrap{all:initial;display:flex;gap:24px;align-items:flex-start;margin:24px 0;}' +
-    '#bq-advisor-wrap>*{flex:1;min-width:0;}' +
-    '#bq-advisor-wrap .bq-panel-wrap{flex:0 0 340px;max-width:340px;}' +
-    '.bq-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}' +
-    '.bq-panel *{box-sizing:border-box;margin:0;padding:0;}' +
-    '.bq-header{padding:14px 16px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;display:flex;justify-content:space-between;align-items:center;}' +
-    '.bq-header-l{display:flex;align-items:center;gap:8px;}' +
-    '.bq-av{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}' +
-    '.bq-hd{font-weight:700;font-size:13px;}' +
-    '.bq-sub{font-size:10px;color:rgba(255,255,255,0.7);}' +
-    '.bq-skin-toggle{padding:4px 10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:5px;font-size:11px;cursor:pointer;font-weight:600;}' +
-    '.bq-skin-toggle:hover{background:rgba(255,255,255,0.25);}' +
-    '.bq-prof{padding:12px 16px;background:#faf5ff;border-bottom:1px solid #e5e7eb;display:none;}' +
-    '.bq-prof.open{display:block;}' +
-    '.bq-prof-lbl{font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}' +
-    '.bq-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}' +
-    '.bq-chip{padding:4px 10px;border:1px solid #d1d5db;border-radius:14px;font-size:11px;cursor:pointer;background:#fff;color:#4b5563;transition:all .12s;}' +
-    '.bq-chip.active{border-color:#7c3aed;background:#ede9fe;color:#7c3aed;font-weight:600;}' +
-    '.bq-chip:hover{border-color:#a78bfa;}' +
-    '.bq-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:340px;}' +
-    '.bq-msg{max-width:88%;padding:9px 13px;border-radius:11px;font-size:12px;line-height:1.5;word-wrap:break-word;}' +
-    '.bq-msg-bot{background:#fff;border-bottom-left-radius:3px;align-self:flex-start;color:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.06);}' +
-    '.bq-msg-user{background:#7c3aed;border-bottom-right-radius:3px;align-self:flex-end;color:#fff;}' +
-    '.bq-prods{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-self:flex-start;}' +
-    '.bq-pcard{padding:7px 10px;background:#fff;border:1px solid #e5e7eb;border-radius:7px;font-size:11px;min-width:100px;}' +
-    '.bq-pn{font-weight:600;color:#1f2937;font-size:11px;}' +
-    '.bq-pp{color:#059669;font-weight:600;font-size:11px;margin-top:1px;}' +
-    '.bq-foot{border-top:1px solid #e5e7eb;padding:9px 12px;display:flex;gap:6px;background:#fff;}' +
-    '.bq-inp{flex:1;border:1px solid #d1d5db;border-radius:7px;padding:8px 10px;font-size:12px;outline:none;}' +
-    '.bq-inp:focus{border-color:#7c3aed;}' +
-    '.bq-snd{background:#7c3aed;color:#fff;border:none;border-radius:7px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:12px;}' +
-    '.bq-snd:disabled{opacity:.4;cursor:default;}' +
-    '.bq-load{display:flex;align-items:center;gap:6px;padding:4px;}' +
-    '.bq-dot{width:6px;height:6px;background:#7c3aed;border-radius:50%;animation:bqP 1.5s infinite;}' +
-    '.bq-ltxt{color:#9ca3af;font-size:11px;}' +
-    '@media(max-width:768px){#bq-advisor-wrap{flex-direction:column;}#bq-advisor-wrap .bq-panel-wrap{flex:1;max-width:100%;}}' +
-    '@keyframes bqP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}';
-
+  style.textContent = '#bq-advisor-wrap{all:initial;display:flex;gap:24px;align-items:flex-start;margin:24px 0;}#bq-advisor-wrap>*{flex:1;min-width:0;}#bq-advisor-wrap .bq-panel-wrap{flex:0 0 340px;max-width:340px;}.bq-panel{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;display:flex;flex-direction:column;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,sans-serif;}.bq-panel *{box-sizing:border-box;margin:0;padding:0;}.bq-header{padding:14px 16px;background:linear-gradient(135deg,#7c3aed,#9333ea);color:#fff;display:flex;justify-content:space-between;align-items:center;}.bq-header-l{display:flex;align-items:center;gap:8px;}.bq-av{width:28px;height:28px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;}.bq-hd{font-weight:700;font-size:13px;}.bq-sub{font-size:10px;color:rgba(255,255,255,0.7);}.bq-skin-toggle{padding:4px 10px;background:rgba(255,255,255,0.15);border:none;color:#fff;border-radius:5px;font-size:11px;cursor:pointer;font-weight:600;}.bq-skin-toggle:hover{background:rgba(255,255,255,0.25);}.bq-prof{padding:12px 16px;background:#faf5ff;border-bottom:1px solid #e5e7eb;display:none;}.bq-prof.open{display:block;}.bq-prof-lbl{font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;}.bq-chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}.bq-chip{padding:4px 10px;border:1px solid #d1d5db;border-radius:14px;font-size:11px;cursor:pointer;background:#fff;color:#4b5563;transition:all .12s;}.bq-chip.active{border-color:#7c3aed;background:#ede9fe;color:#7c3aed;font-weight:600;}.bq-chip:hover{border-color:#a78bfa;}.bq-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:340px;}.bq-msg{max-width:88%;padding:9px 13px;border-radius:11px;font-size:12px;line-height:1.5;word-wrap:break-word;}.bq-msg-bot{background:#fff;border-bottom-left-radius:3px;align-self:flex-start;color:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.06);}.bq-msg-user{background:#7c3aed;border-bottom-right-radius:3px;align-self:flex-end;color:#fff;}.bq-prods{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-self:flex-start;}.bq-pcard{padding:7px 10px;background:#fff;border:1px solid #e5e7eb;border-radius:7px;font-size:11px;min-width:100px;}.bq-pn{font-weight:600;color:#1f2937;font-size:11px;}.bq-pp{color:#059669;font-weight:600;font-size:11px;margin-top:1px;}.bq-foot{border-top:1px solid #e5e7eb;padding:9px 12px;display:flex;gap:6px;background:#fff;}.bq-inp{flex:1;border:1px solid #d1d5db;border-radius:7px;padding:8px 10px;font-size:12px;outline:none;}.bq-inp:focus{border-color:#7c3aed;}.bq-snd{background:#7c3aed;color:#fff;border:none;border-radius:7px;padding:8px 14px;cursor:pointer;font-weight:600;font-size:12px;}.bq-snd:disabled{opacity:.4;cursor:default;}.bq-load{display:flex;align-items:center;gap:6px;padding:4px;}.bq-dot{width:6px;height:6px;background:#7c3aed;border-radius:50%;animation:bqP 1.5s infinite;}.bq-ltxt{color:#9ca3af;font-size:11px;}.bq-quick{display:flex;gap:5px;flex-wrap:wrap;margin:4px 0 2px;align-self:flex-start;}.bq-quick-btn{padding:6px 12px;border:1px solid #c4b5fd;border-radius:100px;font-size:10px;background:#fff;color:#5b21b6;font-weight:500;cursor:pointer;transition:all .12s;}.bq-quick-btn:hover{background:#ede9fe;border-color:#7c3aed;}@media(max-width:768px){#bq-advisor-wrap{flex-direction:column;}#bq-advisor-wrap .bq-panel-wrap{flex:1;max-width:100%;}}@keyframes bqP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}';
   document.head.appendChild(style);
 
-  // Build the advisor panel markup
   var advisorHTML =
     '<div class="bq-panel">' +
     '<div class="bq-header">' +
-    '<div class="bq-header-l">' +
-    '<div class="bq-av">AI</div>' +
-    '<div><div class="bq-hd">Beauty Advisor</div><div class="bq-sub">by BeautyIQ</div></div>' +
-    '</div>' +
+    '<div class="bq-header-l"><div class="bq-av">AI</div><div><div class="bq-hd">Beauty Advisor</div><div class="bq-sub">by BeautyIQ</div></div></div>' +
     '<button class="bq-skin-toggle" id="bq-sk">My&nbsp;Skin</button>' +
     '</div>' +
     '<div class="bq-prof" id="bq-prof">' +
-    '<div class="bq-prof-lbl">Skin Type</div>' +
-    '<div class="bq-chips" id="bq-sk-chips"></div>' +
-    '<div class="bq-prof-lbl">Concerns</div>' +
-    '<div class="bq-chips" id="bq-co-chips"></div>' +
+    '<div class="bq-prof-lbl">Skin Type</div><div class="bq-chips" id="bq-sk-chips"></div>' +
+    '<div class="bq-prof-lbl">Concerns</div><div class="bq-chips" id="bq-co-chips"></div>' +
     '</div>' +
-    '<div class="bq-body" id="bq-body">' +
-    '<div class="bq-msg bq-msg-bot">Hi! I\'m your AI Beauty Advisor. Ask me about this product or tell me about your skin.</div>' +
-    '</div>' +
-    '<div class="bq-foot">' +
-    '<input class="bq-inp" id="bq-inp" placeholder="Ask about your skin...">' +
-    '<button class="bq-snd" id="bq-snd">Send</button>' +
-    '</div>' +
+    '<div class="bq-body" id="bq-body"></div>' +
+    '<div class="bq-foot"><input class="bq-inp" id="bq-inp" placeholder="Ask about your skin..."><button class="bq-snd" id="bq-snd">Send</button></div>' +
     '</div>';
 
-  // Wrap the product container + advisor in a flex layout
   var wrap = document.createElement('div');
   wrap.id = 'bq-advisor-wrap';
-
   var contentWrap = document.createElement('div');
   contentWrap.style.flex = '1';
   contentWrap.style.minWidth = '0';
   contentWrap.className = 'bq-content-wrap';
-
   var panelWrap = document.createElement('div');
   panelWrap.className = 'bq-panel-wrap';
   panelWrap.innerHTML = advisorHTML;
-
-  // Move the product container into the content wrapper
   containerParent.insertBefore(wrap, productContainer);
   contentWrap.appendChild(productContainer);
   wrap.appendChild(contentWrap);
   wrap.appendChild(panelWrap);
 
-  // --- Advisor Logic ---
-  var SKIN_TYPES = ['dry', 'oily', 'combination', 'normal', 'sensitive'];
-  var CONCERNS = ['acne', 'aging', 'hyperpigmentation', 'dehydration', 'redness', 'texture', 'dullness', 'large pores'];
+  var SKIN_TYPES = ['dry','oily','combination','normal','sensitive'];
+  var CONCERNS = ['acne','aging','hyperpigmentation','dehydration','redness','texture','dullness','large pores'];
   var profile = { skinType: '', concerns: [] };
 
   var skChips = document.getElementById('bq-sk-chips');
@@ -193,9 +94,31 @@
     coChips.appendChild(b);
   });
 
-  document.getElementById('bq-sk').onclick = function () {
-    prof.classList.toggle('open');
-  };
+  document.getElementById('bq-sk').onclick = function () { prof.classList.toggle('open'); };
+
+  // Greeting with quick actions covering all storefront features
+  function greeting() {
+    var m = document.createElement('div');
+    m.className = 'bq-msg bq-msg-bot';
+    m.textContent = "Hi! I'm your AI Beauty Advisor. What can I help you with?";
+    body.appendChild(m);
+    var q = document.createElement('div');
+    q.className = 'bq-quick';
+    var actions = [
+      { text: 'Recommend products', query: 'What products do you recommend for my skin type?' },
+      { text: 'Build my routine', query: 'Build a complete skincare routine for me' },
+      { text: 'About this product', query: 'Tell me about this product and what it pairs with' },
+      { text: 'Skincare question', query: 'I have a question about my skincare' },
+    ];
+    actions.forEach(function (a) {
+      var btn = document.createElement('button');
+      btn.className = 'bq-quick-btn';
+      btn.textContent = a.text;
+      btn.onclick = function () { inp.value = a.query; send(); };
+      q.appendChild(btn);
+    });
+    body.appendChild(q);
+  }
 
   function push(text, role, products) {
     var d = document.createElement('div');
@@ -242,6 +165,22 @@
       var msg = payload.reasoning?.[1] || payload.reasoning?.[0] || payload.explanation || 'Here are my recommendations based on your profile.';
       var prods = payload.recommendations || payload.products || [];
       push(msg, 'bot', prods);
+      // Show follow-up quick actions after response
+      var q = document.createElement('div');
+      q.className = 'bq-quick';
+      var followups = [
+        { text: 'Build routine', query: 'Build a routine with these products' },
+        { text: 'More options', query: 'Show me more product options' },
+      ];
+      followups.forEach(function (a) {
+        var btn = document.createElement('button');
+        btn.className = 'bq-quick-btn';
+        btn.textContent = a.text;
+        btn.onclick = function () { inp.value = a.query; send(); };
+        q.appendChild(btn);
+      });
+      body.appendChild(q);
+      body.scrollTop = body.scrollHeight;
       snd.disabled = false;
       snd.textContent = 'Send';
     })
@@ -253,6 +192,7 @@
     });
   }
 
+  greeting();
   snd.onclick = send;
   inp.onkeydown = function (e) { if (e.key === 'Enter') send(); };
 })();
