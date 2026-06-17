@@ -182,11 +182,6 @@
       else addMsg('Great combination to address! Based on your concerns, I\'d recommend our top-rated duo for hydration + anti-aging:');
       if (prods.length) { addProdRow(prods); } else { addProdRow(DEMO_PRODS); }
       addMsg('Together, these two work synergistically — the serum penetrates deep, and the cream locks in moisture. Want me to add both to your cart? You\'ll save 15% with the bundle.');
-      if (routine && routine.length) {
-        var h = '<div style="font-weight:700;font-size:1.15rem;color:#7c3aed;margin-bottom:10px">Your Routine</div>';
-        routine.forEach(function (s, i) { h += '<div style="display:flex;align-items:center;gap:10px;padding:6px 0;font-size:1.1rem"><span style="width:28px;height:28px;background:#7c3aed;color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700">' + (i + 1) + '</span><span>' + s.name + '</span></div>'; });
-        addMsg(h);
-      }
       addChips([
         { text: 'Find my products', query: 'What products should I use for my skin type?' },
         { text: 'I have a question', query: 'I have a skincare question' },
