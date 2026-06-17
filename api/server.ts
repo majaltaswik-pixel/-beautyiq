@@ -109,6 +109,9 @@ export class BeautyIQServer {
     const widgetPath = path.join(__dirname, '..', '..', 'public', 'widget.js');
     if (fs.existsSync(widgetPath)) {
       this.app.get('/widget.js', (_req: Request, res: Response) => {
+        res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
         res.type('application/javascript').sendFile(widgetPath);
       });
     }
@@ -131,7 +134,7 @@ export class BeautyIQServer {
         if (!shop) return res.status(400).json({ error: 'Missing shop' });
         const client = new ShopifyClient(shop);
         const tags = await client.getScriptTags();
-        const installed = (tags.script_tags || []).some((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
+        const installed = (tags.script_tags || []).some((t: any) => t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
         res.json({ installed });
       } catch (err: any) {
         res.json({ installed: false, error: err.message });
@@ -143,11 +146,11 @@ export class BeautyIQServer {
         if (!shop) return res.status(400).json({ error: 'Missing shop' });
         const client = new ShopifyClient(shop);
         const tags = await client.getScriptTags();
-        const existing = (tags.script_tags || []).find((t: any) => t.src === WIDGET_SRC || t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
+        const existing = (tags.script_tags || []).find((t: any) => t.src.startsWith('https://www.beautyiqapp.com/widget.js'));
         if (existing) {
-          return res.json({ installed: true, id: existing.id, message: 'Widget already installed' });
+          await client.deleteScriptTag(existing.id);
         }
-        const result = await client.createScriptTag(WIDGET_SRC + '?shop=' + encodeURIComponent(shop), 'online_store');
+        const result = await client.createScriptTag(WIDGET_SRC + '?shop=' + encodeURIComponent(shop) + '&v=' + Date.now(), 'online_store');
         res.json({ installed: true, id: result.script_tag?.id, message: 'Widget installed successfully' });
       } catch (err: any) {
         res.status(500).json({ error: err.message });

@@ -99,6 +99,10 @@ export class ShopifyClient {
     return this.request<any>('GET', 'script_tags.json?limit=250');
   }
 
+  async deleteScriptTag(id: number): Promise<void> {
+    await this.request<any>('DELETE', `script_tags/${id}.json`);
+  }
+
   async getShopInfo(): Promise<any> {
     return this.request<any>('GET', 'shop.json');
   }
