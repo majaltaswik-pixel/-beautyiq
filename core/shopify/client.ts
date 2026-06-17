@@ -20,7 +20,10 @@ export class ShopifyClient {
       },
       body: body ? JSON.stringify(body) : undefined,
     });
-    if (!resp.ok) throw new Error(`Shopify API error: ${resp.status} ${resp.statusText}`);
+    if (!resp.ok) {
+      const bodyText = await resp.text().catch(() => '');
+      throw new Error(`Shopify API error: ${resp.status} ${resp.statusText} — ${bodyText.slice(0, 500)}`);
+    }
     return resp.json() as Promise<T>;
   }
 
