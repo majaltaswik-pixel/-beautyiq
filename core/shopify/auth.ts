@@ -52,8 +52,8 @@ loadSessions();
 
 export function generateAuthUrl(shop: string, apiKey: string, scopes: string, redirectUri: string): string {
   const state = crypto.randomBytes(16).toString('hex');
-  // Custom distribution apps use admin.shopify.com for OAuth
-  return `https://admin.shopify.com/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  const encodedRedirect = encodeURIComponent(redirectUri);
+  return `https://admin.shopify.com/oauth/authorize?client_id=${apiKey}&scope=${scopes.replace(/,/g, ',')}&redirect_uri=${encodedRedirect}&state=${state}&shop=${encodeURIComponent(shop)}`;
 }
 
 export function validateHmac(queryString: string, clientSecret: string): boolean {
