@@ -78,23 +78,7 @@
   });
   document.getElementById('bq-sk').addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); pp.classList.toggle('open'); });
 
-  // Event delegation on chat body for all chip clicks
-  bd.addEventListener('click', function (e) {
-    var el = e.target;
-    if (el.classList.contains('bq-c')) {
-      e.preventDefault();
-      e.stopPropagation();
-      var query = el.getAttribute('data-q');
-      if (query) { ip.value = query; send(); }
-    }
-  });
-  // Mouse events for hover effect on chips
-  bd.addEventListener('mouseover', function (e) {
-    if (e.target.classList.contains('bq-c')) { e.target.style.background = '#ede9fe'; e.target.style.borderColor = '#7c3aed'; }
-  });
-  bd.addEventListener('mouseout', function (e) {
-    if (e.target.classList.contains('bq-c')) { e.target.style.background = '#fff'; e.target.style.borderColor = '#c4b5fd'; }
-  });
+
 
   function addMsg(html, isUser) {
     var d = document.createElement('div');
@@ -129,16 +113,22 @@
     bd.scrollTop = bd.scrollHeight;
   }
 
+  function chipClick(a) {
+    ip.value = a.query;
+    send();
+  }
+
   function addChips(items) {
     var ch = document.createElement('div');
     ch.className = 'bq-ch';
     ch.style.cssText = 'display:flex;flex-wrap:wrap;gap:12px;margin:8px 0';
     items.forEach(function (a) {
-      var b = document.createElement('button');
+      var b = document.createElement('div');
       b.className = 'bq-c';
-      b.style.cssText = 'padding:12px 22px;border:1px solid #c4b5fd;border-radius:100px;font-size:1.1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer;z-index:2147483647;position:relative';
+      b.style.cssText = 'padding:12px 22px;border:1px solid #c4b5fd;border-radius:100px;font-size:1.1rem;color:#5b21b6;background:#fff;font-weight:500;cursor:pointer;z-index:2147483647;position:relative;user-select:none';
       b.textContent = a.text;
-      b.setAttribute('data-q', a.query);
+      b.addEventListener('mousedown', function (e) { e.preventDefault(); e.stopPropagation(); chipClick(a); });
+      b.addEventListener('touchstart', function (e) { e.preventDefault(); e.stopPropagation(); chipClick(a); });
       ch.appendChild(b);
     });
     bd.appendChild(ch);
